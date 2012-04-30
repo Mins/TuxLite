@@ -1,9 +1,9 @@
 #!/bin/bash
 ##############################################################
-# TuxLite virtualhost setup script                           #
+# TuxLite virtualhost script                                 #
 # Easily add/remove domains or subdomains                    #
-# Configures logrotate, AWStats and PHP5-FPM pool            #
-# Enables/disables public viewing of AWStats and Adminer     #
+# Configures logrotate, AWStats and PHP5-FPM                 #
+# Enables/disables public viewing of AWStats and phpMyAdmin  #
 ##############################################################
 
 source ./options.conf
@@ -16,8 +16,8 @@ DOMAIN_CHECK_VALIDITY="yes"
 
 #### First initialize some static variables ####
 
-# Specify path to Adminer (phpMyAdmin replacement)
-ADMINER_PATH="/usr/local/share/adminer/"
+# Specify path to database management tool
+PHPMYADMIN_PATH="/usr/local/share/phpmyadmin/"
 
 # Logrotate Postrotate for Nginx
 # From options.conf, nginx = 1, apache = 2
@@ -27,8 +27,8 @@ else
     POSTROTATE_CMD='/etc/init.d/apache2 reload > /dev/null'
 fi
 
-# Variables for Awstats/Adminer functions
-# The path to find for Adminer and Awstats symbolic links
+# Variables for AWStats/phpMyAdmin functions
+# The path to find for phpMyAdmin and Awstats symbolic links
 PUBLIC_HTML_PATH="/home/*/domains/*/public_html"
 VHOST_PATH="/home/*/domains/*"
 
@@ -38,6 +38,7 @@ VHOST_PATH="/home/*/domains/*"
 function initialize_variables {
 
     # Initialize variables based on user input. For add/rem functions displayed by the menu
+    DOMAINS_FOLDER="/home/$DOMAIN_OWNER/domains"
     DOMAIN_PATH="/home/$DOMAIN_OWNER/domains/$DOMAIN"
 
     # From options.conf, nginx = 1, apache = 2
@@ -123,10 +124,10 @@ EOF
     fi
 
     # Set permissions
-    chown $DOMAIN_OWNER:$DOMAIN_OWNER /home/$DOMAIN_OWNER/domains
+    chown $DOMAIN_OWNER:$DOMAIN_OWNER $DOMAINS_FOLDER
     chown -R $DOMAIN_OWNER:$DOMAIN_OWNER $DOMAIN_PATH
     # Allow execute permissions to group and other so that the webserver can serve files
-    chmod 711 /home/$DOMAIN_OWNER/domains
+    chmod 711 $DOMAINS_FOLDER
     chmod 711 $DOMAIN_PATH
 
     # Virtualhost entry
@@ -355,9 +356,9 @@ function awstats_on {
         find $VHOST_PATH -maxdepth 1 -name "public_html" -type d | xargs -L1 -I path ln -sv ../awstats path/stats
         echo -e "\033[35;1mAwstats enabled.\033[0m"
     else
-        echo -e "\033[35;1mERROR: Failed to enable Awstats for all domains. \033[0m"
-        echo -e "\033[35;1mERROR: Awstats is already enabled for at least 1 domain. \033[0m"
-        echo -e "\033[35;1mERROR: Turn Awstats off again before re-enabling. \033[0m"
+        echo -e "\033[35;1mERROR: Failed to enable AWStats for all domains. \033[0m"
+        echo -e "\033[35;1mERROR: AWStats is already enabled for at least 1 domain. \033[0m"
+        echo -e "\033[35;1mERROR: Turn AWStats off again before re-enabling. \033[0m"
         echo -e "\033[35;1mERROR: Also ensure that all your public_html(s) do not have a manually created \"stats\" folder. \033[0m"
     fi
 
@@ -380,39 +381,39 @@ function awstats_off {
 } # End function awstats_off
 
 
-function adminer_on {
+function phpmyadmin_on {
 
-    # Search virtualhost directory to look for "adminer". In case the user created a "adminer" folder, we do not want to overwrite it.
-    adminer_folder=`find $PUBLIC_HTML_PATH -maxdepth 1 -name "adminer" -print0 | xargs -0 -I path echo path | wc -l`
+    # Search virtualhost directory to look for "pma". In case the user created a "pma" folder, we do not want to overwrite it.
+    pma_folder=`find $PUBLIC_HTML_PATH -maxdepth 1 -name "pma" -print0 | xargs -0 -I path echo path | wc -l`
 
-    # If no adminer folder found, find all available public_html folders and create symbolic link to the Adminer folder
-    if [ $adminer_folder -eq 0 ]; then
-        find $VHOST_PATH -maxdepth 1 -name "public_html" -type d | xargs -L1 -I path ln -sv $ADMINER_PATH path/adminer
-        echo -e "\033[35;1mAdminer enabled.\033[0m"
+    # If no "pma" folders found, find all available public_html folders and create "pma" symbolic link to /usr/local/share/phpmyadmin/
+    if [ $pma_folder -eq 0 ]; then
+        find $VHOST_PATH -maxdepth 1 -name "public_html" -type d | xargs -L1 -I path ln -sv $PHPMYADMIN_PATH path/pma
+        echo -e "\033[35;1mphpMyAdmin enabled.\033[0m"
     else
-        echo -e "\033[35;1mERROR: Failed to enable Adminer for all domains. \033[0m"
-        echo -e "\033[35;1mERROR: Adminer is already enabled for at least 1 domain. \033[0m"
-        echo -e "\033[35;1mERROR: Turn Adminer off again before re-enabling. \033[0m"
-        echo -e "\033[35;1mERROR: Also ensure that all your public_html(s) do not have a manually created \"adminer\" folder. \033[0m"
+        echo -e "\033[35;1mERROR: Failed to enable phpMyAdmin for all domains. \033[0m"
+        echo -e "\033[35;1mERROR: phpMyAdmin is already enabled for at least 1 domain. \033[0m"
+        echo -e "\033[35;1mERROR: Turn phpMyAdmin off again before re-enabling. \033[0m"
+        echo -e "\033[35;1mERROR: Also ensure that all your public_html(s) do not have a manually created \"pma\" folder. \033[0m"
     fi
 
-} # End function adminer_on
+} # End function phpmyadmin_on
 
 
-function adminer_off {
+function phpmyadmin_off {
 
-    # Search virtualhost directory to look for "p" symbolic links
-    find $PUBLIC_HTML_PATH -maxdepth 1 -name "adminer" -type l -print0 | xargs -0 -I path echo path > /tmp/adminer.txt
+    # Search virtualhost directory to look for "pma" symbolic links
+    find $PUBLIC_HTML_PATH -maxdepth 1 -name "pma" -type l -print0 | xargs -0 -I path echo path > /tmp/pma.txt
 
     # Remove symbolic links
     while read LINE; do
         rm -rfv $LINE
-    done < "/tmp/adminer.txt"
-    rm -rf /tmp/adminer.txt
+    done < "/tmp/pma.txt"
+    rm -rf /tmp/pma.txt
 
-    echo -e "\033[35;1mAdminer disabled. If you do not see any \"removed\" messages, it means it has already been disabled.\033[0m"
+    echo -e "\033[35;1mphpMyAdmin disabled. If \"removed\" messages do not appear, phpMyAdmin has been previously disabled.\033[0m"
 
-} # End function adminer_off
+} # End function phpmyadmin_off
 
 
 #### Main program begins ####
@@ -430,12 +431,12 @@ if [ ! -n "$1" ]; then
     echo     " - Remove everything for Domain.tld including stats and public_html. If necessary, backup domain files before executing!"
 
     echo -n  "$0"
-    echo -ne "\033[36m stats on|off\033[0m"
-    echo     " - Disable or enable public viewing of AWStats."
+    echo -ne "\033[36m pma on|off\033[0m"
+    echo     " - Disable or enable public viewing of phpMyAdmin."
 
     echo -n  "$0"
-    echo -ne "\033[36m adm on|off\033[0m"
-    echo     " - Disable or enable public viewing of Adminer."
+    echo -ne "\033[36m stats on|off\033[0m"
+    echo     " - Disable or enable public viewing of AWStats."
 
     echo ""
     exit 0
@@ -483,9 +484,9 @@ add)
     reload_webserver
     echo -e "\033[35;1mSuccesfully added \"${DOMAIN}\" to user \"${DOMAIN_OWNER}\" \033[0m"
     echo -e "\033[35;1mYou can now upload your site to $DOMAIN_PATH/public_html.\033[0m"
-    echo -e "\033[35;1mAdminer is DISABLED by default. Adminer URL = http://$DOMAIN/adminer.\033[0m"
-    echo -e "\033[35;1mAWStats is DISABLED by default. AWStats URL = http://$DOMAIN/stats.\033[0m"
-    echo -e "\033[35;1mStats updates daily. Allow 24H before viewing stats or you will be greeted with an error page. \033[0m"
+    echo -e "\033[35;1mphpMyAdmin is DISABLED by default. URL = http://$DOMAIN/pma.\033[0m"
+    echo -e "\033[35;1mAWStats is DISABLED by default. URL = http://$DOMAIN/stats.\033[0m"
+    echo -e "\033[35;1mStats update daily. Allow 24H before viewing stats or you will be greeted with an error page. \033[0m"
     echo -e "\033[35;1mIf Varnish cache is enabled, please disable & enable it again to reconfigure this domain. \033[0m"
     ;;
 rem)
@@ -518,18 +519,18 @@ rem)
 
     remove_domain
     ;;
+pma)
+    if [ "$2" = "on" ]; then
+        phpmyadmin_on
+    elif [ "$2" = "off" ]; then
+        phpmyadmin_off
+    fi
+    ;;
 stats)
     if [ "$2" = "on" ]; then
         awstats_on
     elif [ "$2" = "off" ]; then
         awstats_off
-    fi
-    ;;
-adm)
-    if [ "$2" = "on" ]; then
-        adminer_on
-    elif [ "$2" = "off" ]; then
-        adminer_off
     fi
     ;;
 esac

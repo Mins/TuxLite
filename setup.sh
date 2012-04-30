@@ -1,8 +1,8 @@
 #!/bin/bash
 ###############################################################################################
-# Complete LNMP/LAMP setup script for Debian/Ubuntu                                           #
+# TuxLite - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
 # Nginx/Apache + PHP5-FPM + MySQL                                                             #
-# Stack is tuned for a 256MB VPS                                                              #
+# Stack is optimized/tuned for a 256MB server                                                 #
 # Email your questions to s@tuxlite.com                                                       #
 ###############################################################################################
 
@@ -100,6 +100,8 @@ function install_webserver {
     # From options.conf, nginx = 1, apache = 2
     if [ $WEBSERVER -eq 1 ]; then
         aptitude -y install nginx
+        # Add a catch-all default vhost
+        cat ./config/nginx_default_vhost.conf > /etc/nginx/sites-available/default
     else
         aptitude -y install libapache2-mod-fastcgi apache2-mpm-event
 
@@ -212,7 +214,7 @@ function optimize_stack {
     sed -i 's/^expose_php.*/expose_php = Off/' $php_ini_dir
     sed -i 's/^disable_functions.*/disable_functions = exec,system,passthru,shell_exec,escapeshellarg,escapeshellcmd,proc_close,proc_open,dl,popen,show_source/' $php_ini_dir
 
-    # Generating self signed SSL certs for securing adminer, script logins etc
+    # Generating self signed SSL certs for securing phpMyAdmin, script logins etc
     echo -e " "
     echo -e "\033[35;1m Generating SSL certs, you do not have to enter any details when asked. But recommended to enter Hostname FQDN for 'Common Name'! \033[0m"
     mkdir /etc/ssl/localcerts
@@ -260,22 +262,35 @@ function install_postfix {
 } # End function install_postfix
 
 
-function install_adminer {
+function install_phpmyadmin {
 
-    mkdir -p /usr/local/share/adminer
-    cd /usr/local/share/adminer
-    rm -rf /usr/local/share/adminer/*
-    wget http://www.adminer.org/latest.php
+    mkdir /tmp/phpmyadmin
+    wget -O - $PMA_LINK | tar zxf - -C /tmp/phpmyadmin
+
+    # Check exit status to see if download is successful
     if [ $? = 0  ]; then
-        mv latest.php index.php
-        echo -e "\033[35;1m Adminer installed. \033[0m"
+        mkdir /usr/local/share/phpmyadmin
+        rm -rf /usr/local/share/phpmyadmin/*
+        cp -Rpf /tmp/phpmyadmin/*/* /usr/local/share/phpmyadmin
+        cp /usr/local/share/phpmyadmin/{config.sample.inc.php,config.inc.php}
+        rm -rf /tmp/phpmyadmin
+
+        # Generate random blowfish string
+        LENGTH="20"
+        MATRIX="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        while [ "${n:=1}" -le "$LENGTH" ]; do
+            BLOWFISH="$BLOWFISH${MATRIX:$(($RANDOM%${#MATRIX})):1}"
+            let n+=1
+        done
+
+        # Configure phpmyadmin blowfish variable
+        sed -i "s/blowfish_secret'] = ''/blowfish_secret'] = \'$BLOWFISH\'/"  /usr/local/share/phpmyadmin/config.inc.php
+        echo -e "\033[35;1mphpMyAdmin installed/upgraded.\033[0m"
     else
-        echo -e "\033[35;1mInstall failed. Perhaps http://adminer.org is down. Try again later.\033[0m"
+        echo -e "\033[35;1mInstall/upgrade failed. Perhaps phpMyAdmin download link is temporarily down. Update link in options.conf and try again.\033[0m"
     fi
-    cd - &> /dev/null
 
-
-} # End function install_adminer
+}
 
 
 function check_tmp_secured {
@@ -384,13 +399,14 @@ if [ ! -n "$1" ]; then
     echo -e  "\033[35;1mA standard setup would be: apt + basic + install + optimize\033[0m"
     echo ""
     echo -e  "\033[35;1mSelect from the options below to use this script:- \033[0m"
-    echo -n  "$0"
-    echo -ne "\033[36m basic\033[0m"
-    echo     " - Disable root SSH logins, change SSH port and set hostname."
 
     echo -n "$0"
     echo -ne "\033[36m apt\033[0m"
     echo     " - Reconfigure or reset /etc/apt/sources.list."
+
+    echo -n  "$0"
+    echo -ne "\033[36m basic\033[0m"
+    echo     " - Disable root SSH logins, change SSH port and set hostname."
 
     echo -n "$0"
     echo -ne "\033[36m install\033[0m"
@@ -401,8 +417,8 @@ if [ ! -n "$1" ]; then
     echo     " - Optimizes webserver.conf, php.ini, AWStats & logrotate. Also generates self signed SSL certs."
 
     echo -n "$0"
-    echo -ne "\033[36m adminer\033[0m"
-    echo     " - Installs or updates Adminer (GUI for MySQL management)."
+    echo -ne "\033[36m pma\033[0m"
+    echo     " - Installs or updates phpMyAdmin."
 
     echo -n "$0"
     echo -ne "\033[36m tmpfs\033[0m"
@@ -438,8 +454,8 @@ install)
 optimize)
     optimize_stack
     ;;
-adminer)
-    install_adminer
+pma)
+    install_phpmyadmin
     ;;
 tmpdd)
     check_tmp_secured

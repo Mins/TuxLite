@@ -48,14 +48,14 @@ reading the "getting started" tutorials in Linode Library.
     fastcgi (PHP-FPM). This gives much higher performance and lower memory
     consumption than the regular LAMP tutorials/guides using mod\_php.
 -   100% official distribution packages. You are not at the mercy of the
-    script maintainer to keep your servers secured. All installed
-    software are tuned, optimized and locked down from external access.
+    script maintainer to keep your servers updated. All installed
+    software are tuned, optimized and secured.
 -   Extremely minimal resource usage. Fresh install requires only
     50-60MB RAM.
 -   Free from unnecessary or custom changes to your server. Everything
     is configured according to Debian/Ubuntu standards.
 -   Automatic virtualhost configuration with log rotation, AWStats
-    traffic statistics and Adminer(GUI) for managing MySQL.
+    traffic statistics and phpMyAdmin for managing MySQL.
 -   Varnish cache script included to turbo charge your websites.
--   Free and open source! Coded in a "human readable" manner and
+-   Free and open source! Coded in a human readable manner and
     modular, making custom modifications extremely easy.

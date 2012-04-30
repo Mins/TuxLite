@@ -277,15 +277,15 @@ if [ ! -n "$1" ]; then
     echo -ne "\033[36m dir User\033[0m"
     echo     " - Create backup /home/User/backup/{domains,databases} directories to store backup files from cronjob."
 
-	echo -n  "$0"
+    echo -n  "$0"
     echo -ne "\033[36m db User\033[0m"
-    echo     " - Set up cronjob to mysqldump DB_Name to USER's backup directory."
+    echo     " - Set up cronjob to mysqldump a database to USER's backup directory."
 
-	echo -n  "$0"
+    echo -n  "$0"
     echo -ne "\033[36m site User\033[0m"
-    echo     " - Set up cronjob to tar.gz Domain.tld to User's backup directory."
+    echo     " - Set up cronjob to tar.gz a domain's public_html to User's backup directory."
 
-	echo -n  "$0"
+    echo -n  "$0"
     echo -ne "\033[36m cleanup Old User\033[0m"
     echo     " - Set up cronjob to remove backups files that are older than \"Old\"(integer) days from User's backup directory."
 
@@ -312,8 +312,8 @@ db)
         exit 1
     else
         USER=$2
-		find_available_databases
-		ask_interval
+        find_available_databases
+        ask_interval
         cron_backupdb
     fi
     ;;
@@ -325,7 +325,7 @@ site)
     else
         USER=$2
         find_available_domains
-		ask_interval
+        ask_interval
         cron_backupdomain
     fi
     ;;
@@ -336,8 +336,8 @@ cleanup)
         exit 1
     else
         USER=$3
-		DAYS=$2
-		ask_interval
+        DAYS=$2
+        ask_interval
         cron_cleanbackup
     fi
     ;;
