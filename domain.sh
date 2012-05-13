@@ -1,10 +1,10 @@
 #!/bin/bash
-##############################################################
-# TuxLite virtualhost script                                 #
-# Easily add/remove domains or subdomains                    #
-# Configures logrotate, AWStats and PHP5-FPM                 #
-# Enables/disables public viewing of AWStats and phpMyAdmin  #
-##############################################################
+######################################################################
+# TuxLite virtualhost script                                         #
+# Easily add/remove domains or subdomains                            #
+# Configures logrotate, AWStats and PHP5-FPM                         #
+# Enables/disables public viewing of AWStats and Adminer/phpMyAdmin  #
+######################################################################
 
 source ./options.conf
 
@@ -17,7 +17,12 @@ DOMAIN_CHECK_VALIDITY="yes"
 #### First initialize some static variables ####
 
 # Specify path to database management tool
-PHPMYADMIN_PATH="/usr/local/share/phpmyadmin/"
+if [ $DB_GUI -eq 1 ]; then
+    DB_GUI_PATH="/usr/local/share/phpmyadmin/"
+else
+    DB_GUI_PATH="/usr/local/share/adminer/"
+fi
+
 
 # Logrotate Postrotate for Nginx
 # From options.conf, nginx = 1, apache = 2
@@ -27,8 +32,8 @@ else
     POSTROTATE_CMD='/etc/init.d/apache2 reload > /dev/null'
 fi
 
-# Variables for AWStats/phpMyAdmin functions
-# The path to find for phpMyAdmin and Awstats symbolic links
+# Variables for AWStats/Adminer|phpMyAdmin functions
+# The path to find for Adminer|phpMyAdmin and Awstats symbolic links
 PUBLIC_HTML_PATH="/home/*/domains/*/public_html"
 VHOST_PATH="/home/*/domains/*"
 
@@ -381,39 +386,39 @@ function awstats_off {
 } # End function awstats_off
 
 
-function phpmyadmin_on {
+function dbgui_on {
 
-    # Search virtualhost directory to look for "pma". In case the user created a "pma" folder, we do not want to overwrite it.
-    pma_folder=`find $PUBLIC_HTML_PATH -maxdepth 1 -name "pma" -print0 | xargs -0 -I path echo path | wc -l`
+    # Search virtualhost directory to look for "dbgui". In case the user created a "dbgui" folder, we do not want to overwrite it.
+    dbgui_folder=`find $PUBLIC_HTML_PATH -maxdepth 1 -name "dbgui" -print0 | xargs -0 -I path echo path | wc -l`
 
-    # If no "pma" folders found, find all available public_html folders and create "pma" symbolic link to /usr/local/share/phpmyadmin/
-    if [ $pma_folder -eq 0 ]; then
-        find $VHOST_PATH -maxdepth 1 -name "public_html" -type d | xargs -L1 -I path ln -sv $PHPMYADMIN_PATH path/pma
-        echo -e "\033[35;1mphpMyAdmin enabled.\033[0m"
+    # If no "dbgui" folders found, find all available public_html folders and create "dbgui" symbolic link to /usr/local/share/adminer|phpmyadmin
+    if [ $dbgui_folder -eq 0 ]; then
+        find $VHOST_PATH -maxdepth 1 -name "public_html" -type d | xargs -L1 -I path ln -sv $DB_GUI_PATH path/dbgui
+        echo -e "\033[35;1mAdminer or phpMyAdmin enabled.\033[0m"
     else
-        echo -e "\033[35;1mERROR: Failed to enable phpMyAdmin for all domains. \033[0m"
-        echo -e "\033[35;1mERROR: phpMyAdmin is already enabled for at least 1 domain. \033[0m"
-        echo -e "\033[35;1mERROR: Turn phpMyAdmin off again before re-enabling. \033[0m"
-        echo -e "\033[35;1mERROR: Also ensure that all your public_html(s) do not have a manually created \"pma\" folder. \033[0m"
+        echo -e "\033[35;1mERROR: Failed to enable Adminer or phpMyAdmin for all domains. \033[0m"
+        echo -e "\033[35;1mERROR: It is already enabled for at least 1 domain. \033[0m"
+        echo -e "\033[35;1mERROR: Turn it off again before re-enabling. \033[0m"
+        echo -e "\033[35;1mERROR: Also ensure that all your public_html(s) do not have a manually created \"dbgui\" folder. \033[0m"
     fi
 
-} # End function phpmyadmin_on
+} # End function dbgui_on
 
 
-function phpmyadmin_off {
+function dbgui_off {
 
-    # Search virtualhost directory to look for "pma" symbolic links
-    find $PUBLIC_HTML_PATH -maxdepth 1 -name "pma" -type l -print0 | xargs -0 -I path echo path > /tmp/pma.txt
+    # Search virtualhost directory to look for "dbgui" symbolic links
+    find $PUBLIC_HTML_PATH -maxdepth 1 -name "dbgui" -type l -print0 | xargs -0 -I path echo path > /tmp/dbgui.txt
 
     # Remove symbolic links
     while read LINE; do
         rm -rfv $LINE
-    done < "/tmp/pma.txt"
-    rm -rf /tmp/pma.txt
+    done < "/tmp/dbgui.txt"
+    rm -rf /tmp/dbgui.txt
 
-    echo -e "\033[35;1mphpMyAdmin disabled. If \"removed\" messages do not appear, phpMyAdmin has been previously disabled.\033[0m"
+    echo -e "\033[35;1mAdminer or phpMyAdmin disabled. If \"removed\" messages do not appear, it has been previously disabled.\033[0m"
 
-} # End function phpmyadmin_off
+} # End function dbgui_off
 
 
 #### Main program begins ####
@@ -431,8 +436,8 @@ if [ ! -n "$1" ]; then
     echo     " - Remove everything for Domain.tld including stats and public_html. If necessary, backup domain files before executing!"
 
     echo -n  "$0"
-    echo -ne "\033[36m pma on|off\033[0m"
-    echo     " - Disable or enable public viewing of phpMyAdmin."
+    echo -ne "\033[36m dbgui on|off\033[0m"
+    echo     " - Disable or enable public viewing of Adminer or phpMyAdmin."
 
     echo -n  "$0"
     echo -ne "\033[36m stats on|off\033[0m"
@@ -484,7 +489,7 @@ add)
     reload_webserver
     echo -e "\033[35;1mSuccesfully added \"${DOMAIN}\" to user \"${DOMAIN_OWNER}\" \033[0m"
     echo -e "\033[35;1mYou can now upload your site to $DOMAIN_PATH/public_html.\033[0m"
-    echo -e "\033[35;1mphpMyAdmin is DISABLED by default. URL = http://$DOMAIN/pma.\033[0m"
+    echo -e "\033[35;1mAdminer/phpMyAdmin is DISABLED by default. URL = http://$DOMAIN/dbgui.\033[0m"
     echo -e "\033[35;1mAWStats is DISABLED by default. URL = http://$DOMAIN/stats.\033[0m"
     echo -e "\033[35;1mStats update daily. Allow 24H before viewing stats or you will be greeted with an error page. \033[0m"
     echo -e "\033[35;1mIf Varnish cache is enabled, please disable & enable it again to reconfigure this domain. \033[0m"
@@ -519,11 +524,11 @@ rem)
 
     remove_domain
     ;;
-pma)
+dbgui)
     if [ "$2" = "on" ]; then
-        phpmyadmin_on
+        dbgui_on
     elif [ "$2" = "off" ]; then
-        phpmyadmin_off
+        dbgui_off
     fi
     ;;
 stats)

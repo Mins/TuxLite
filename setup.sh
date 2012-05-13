@@ -262,35 +262,53 @@ function install_postfix {
 } # End function install_postfix
 
 
-function install_phpmyadmin {
 
-    mkdir /tmp/phpmyadmin
-    wget -O - $PMA_LINK | tar zxf - -C /tmp/phpmyadmin
+function install_dbgui {
 
-    # Check exit status to see if download is successful
-    if [ $? = 0  ]; then
-        mkdir /usr/local/share/phpmyadmin
-        rm -rf /usr/local/share/phpmyadmin/*
-        cp -Rpf /tmp/phpmyadmin/*/* /usr/local/share/phpmyadmin
-        cp /usr/local/share/phpmyadmin/{config.sample.inc.php,config.inc.php}
-        rm -rf /tmp/phpmyadmin
+    # If user selected phpMyAdmin in options.conf
+    if [ $DB_GUI = 1  ]; then
+        mkdir /tmp/phpmyadmin
+        wget -O - $PMA_LINK | tar zxf - -C /tmp/phpmyadmin
 
-        # Generate random blowfish string
-        LENGTH="20"
-        MATRIX="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-        while [ "${n:=1}" -le "$LENGTH" ]; do
-            BLOWFISH="$BLOWFISH${MATRIX:$(($RANDOM%${#MATRIX})):1}"
-            let n+=1
-        done
+        # Check exit status to see if download is successful
+        if [ $? = 0  ]; then
+            mkdir /usr/local/share/phpmyadmin
+            rm -rf /usr/local/share/phpmyadmin/*
+            cp -Rpf /tmp/phpmyadmin/*/* /usr/local/share/phpmyadmin
+            cp /usr/local/share/phpmyadmin/{config.sample.inc.php,config.inc.php}
+            rm -rf /tmp/phpmyadmin
 
-        # Configure phpmyadmin blowfish variable
-        sed -i "s/blowfish_secret'] = ''/blowfish_secret'] = \'$BLOWFISH\'/"  /usr/local/share/phpmyadmin/config.inc.php
-        echo -e "\033[35;1mphpMyAdmin installed/upgraded.\033[0m"
-    else
-        echo -e "\033[35;1mInstall/upgrade failed. Perhaps phpMyAdmin download link is temporarily down. Update link in options.conf and try again.\033[0m"
-    fi
+            # Generate random blowfish string
+            LENGTH="20"
+            MATRIX="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+            while [ "${n:=1}" -le "$LENGTH" ]; do
+                BLOWFISH="$BLOWFISH${MATRIX:$(($RANDOM%${#MATRIX})):1}"
+                let n+=1
+            done
 
-}
+            # Configure phpmyadmin blowfish variable
+            sed -i "s/blowfish_secret'] = ''/blowfish_secret'] = \'$BLOWFISH\'/"  /usr/local/share/phpmyadmin/config.inc.php
+            echo -e "\033[35;1mphpMyAdmin installed/upgraded.\033[0m"
+        else
+            echo -e "\033[35;1mInstall/upgrade failed. Perhaps phpMyAdmin download link is temporarily down. Update link in options.conf and try again.\033[0m"
+        fi
+
+    else # User selected Adminer
+
+        mkdir -p /usr/local/share/adminer
+        cd /usr/local/share/adminer
+        rm -rf /usr/local/share/adminer/*
+        wget http://www.adminer.org/latest.php
+        if [ $? = 0  ]; then
+            mv latest.php index.php
+            echo -e "\033[35;1m Adminer installed. \033[0m"
+        else
+            echo -e "\033[35;1mInstall/upgrade failed. Perhaps http://adminer.org is down. Try again later.\033[0m"
+        fi
+        cd - &> /dev/null
+    fi # End if DB_GUI
+
+} # End function install_dbgui
 
 
 function check_tmp_secured {
@@ -417,8 +435,8 @@ if [ ! -n "$1" ]; then
     echo     " - Optimizes webserver.conf, php.ini, AWStats & logrotate. Also generates self signed SSL certs."
 
     echo -n "$0"
-    echo -ne "\033[36m pma\033[0m"
-    echo     " - Installs or updates phpMyAdmin."
+    echo -ne "\033[36m dbgui\033[0m"
+    echo     " - Installs or updates Adminer/phpMyAdmin."
 
     echo -n "$0"
     echo -ne "\033[36m tmpfs\033[0m"
@@ -454,8 +472,8 @@ install)
 optimize)
     optimize_stack
     ;;
-pma)
-    install_phpmyadmin
+dbgui)
+    install_dbgui
     ;;
 tmpdd)
     check_tmp_secured
