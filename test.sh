@@ -6,26 +6,7 @@ OS=`lsb_release -i -s`
 # Release
 R=`lsb_release -c -s`
 
-# function test_os {
-#     if [ $OS  == "Debian" ]; then
-#         echo -e "\033[35;1m Its Debian \033[0m"
-#     else
-
-#         if [ $OS  == "Ubuntu" ]; then
-#             echo -e "\033[35;1m Its Ubuntu \033[0m"
-#         else
-#                 echo -e "\033[35;1m Sorry, OS: '"$OS"' and Version: '"$R"' are not supported at this time. \033[0m"
-#         fi
-#     fi
-
-#     if [ $R == "squeeze" ]; then
-#         echo -e "\033[35;1m Its Debian '"$R"' \033[0m"
-#     fi
-# }
-
-# test_os
-
-
+ 
 function setup_apt {
 
     cp /etc/apt/{sources.list,sources.list.bak}
