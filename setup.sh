@@ -8,8 +8,6 @@
 
 source ./options.conf
 
-
-aptitude -y install lsb-release
 # Operating system
 DISTRO=`lsb_release -i -s`
 # Release
