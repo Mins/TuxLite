@@ -8,7 +8,12 @@
 
 source ./options.conf
 
+# Operating system
+DISTRO=`lsb_release -i -s`
+# Release
+RELEASE=`lsb_release -c -s`
 #### Functions Begin ####
+
 
 function basic_server_setup {
 
@@ -22,8 +27,11 @@ function basic_server_setup {
     # Set hostname and FQDN
     sed -i 's/'${SERVER_IP}'.*/'${SERVER_IP}' '${HOSTNAME_FQDN}' '${HOSTNAME}'/' /etc/hosts
     echo "$HOSTNAME" > /etc/hostname
+    if  [ $DISTRO = ""]; then
+        echo -e "\033[35;1m  You need to run the setup_apt function first, or 'aptitude -y install lsb-release' \033[0m"
+    fi 
 
-    if [ $DISTRO -eq 1 ]; then
+    if [ $DISTRO = "Debian"]; then
         # Debian system, use hostname.sh
         service hostname.sh start
     else
@@ -44,10 +52,12 @@ function basic_server_setup {
 
 
 function setup_apt {
+  
 
     cp /etc/apt/{sources.list,sources.list.bak}
 
-    if [ $DISTRO -eq 1 ]; then
+    if [ $DISTRO  == "Debian" ]; then
+        echo -e "\033[35;1m Its Debian \033[0m"
         # Debian system, use Debian sources.list
         cat > /etc/apt/sources.list <<EOF
 # Main repo
@@ -60,7 +70,10 @@ deb-src http://security.debian.org/ $RELEASE/updates main contrib non-free
 
 EOF
 
-    else # Otherwise use Ubuntu sources.list
+    else 
+        if [ $DISTRO  == "Ubuntu" ]; then 
+        echo -e "\033[35;1m Its Ubuntu \033[0m"
+    # Otherwise use Ubuntu sources.list
 
         cat > /etc/apt/sources.list <<EOF
 # Main repo
@@ -74,11 +87,18 @@ deb http://security.ubuntu.com/ubuntu $RELEASE-security main restricted universe
 deb-src http://security.ubuntu.com/ubuntu $RELEASE-security main restricted universe
 
 EOF
-
-    fi # End if distro == 1
-
+        else
+             
+            if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian"  ]; then
+                # throw an error if its not supported os, 
+                echo -e "\033[35;1m Sorry, Distro: '"$DISTRO"' and Release: '"$RELEASE"' are not supported at this time. \033[0m"
+                exit
+            fi
+        fi # End if 
+    fi
     # Need to add Dotdeb repo for PHP5-FPM when using Debian 6.0
     if [ $RELEASE = "squeeze" ]; then
+         echo -e "\033[35;1m Its Debian '"$RELEASE"' \033[0m"
         cat >> /etc/apt/sources.list <<EOF
 # Dotdeb
 deb http://packages.dotdeb.org stable all
