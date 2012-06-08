@@ -38,7 +38,7 @@ function check_wordpress_exists {
         return 0
     fi
 
-} # End function check_wordpress_exists 
+} # End function check_wordpress_exists
 
 function check_database_exists {
 
@@ -56,11 +56,11 @@ function get_latest_wordpress {
 
     # Downlod latest wordpress version to tmp and extract
     mkdir /tmp/wordpress
-    wget -O - http://wordpress.org/latest.tar.gz | tar zxf - -C /tmp/wordpress &> /dev/null 
+    wget -O - http://wordpress.org/latest.tar.gz | tar zxf - -C /tmp/wordpress &> /dev/null
 
     # Create new path for wordpress and copy files to it
     mkdir $INSTALL_PATH &> /dev/null
-    mv /tmp/wordpress/wordpress/* $INSTALL_PATH 
+    mv /tmp/wordpress/wordpress/* $INSTALL_PATH
 
     # Create wp-config.php file
     cp $INSTALL_PATH/{wp-config-sample.php,wp-config.php}
@@ -94,8 +94,8 @@ function find_available_domains {
 
     DOMAINS_AVAILABLE=0
     find $FIND_PATH -maxdepth 0 &> /dev/null
-    
-    # First check to see if there are domains available. Suppress exit status. 
+
+    # First check to see if there are domains available. Suppress exit status.
     if [ $? -eq 0 ]; then 
         find $FIND_PATH -maxdepth 0 > /tmp/domain.txt
         DOMAINS_AVAILABLE=`cat /tmp/domain.txt | wc -l`
@@ -202,7 +202,7 @@ function user_input {
     # Get full system path for installation
     INSTALL_PATH="${DOMAIN}${WP_FOLDER}"
 
-} # End function user_input 
+} # End function user_input
 
 
 ### Main Program Begins ###
@@ -230,7 +230,7 @@ read DECISION
 if [[ "$DECISION" = [yY] ]]; then
 
     check_wordpress_exists
-    if [ $? -eq 1 ]; then 
+    if [ $? -eq 1 ]; then
        echo "Wordpress already installed in your specified path. Exiting."
        exit
     fi

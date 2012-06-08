@@ -13,7 +13,7 @@ function setup_varnish {
     # Add repo key and install Varnish
     aptitude update && aptitude -y install curl
     curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
-    echo "deb http://repo.varnish-cache.org/debian/ ${LSB_RELEASE} ${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list 
+    echo "deb http://repo.varnish-cache.org/debian/ ${LSB_RELEASE} ${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
     aptitude update
     aptitude -y install varnish
 

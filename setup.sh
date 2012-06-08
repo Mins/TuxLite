@@ -8,16 +8,21 @@
 
 source ./options.conf
 
-# Operating system
+# Detect distribution. Debian or Ubuntu
 DISTRO=`lsb_release -i -s`
-# Release
+# Distribution's release. Squeeze, wheezy, precise etc
 RELEASE=`lsb_release -c -s`
-#### Functions Begin ####
+if  [ $DISTRO = ""]; then
+    echo -e "\033[35;1mPlease run 'aptitude -y install lsb-release' before using this script.\033[0m"
+    exit 1
+fi
 
+
+#### Functions Begin ####
 
 function basic_server_setup {
 
-    aptitude update && aptitude -y safe-upgrade 
+    aptitude update && aptitude -y safe-upgrade
 
     # Reconfigure sshd - change port and disable root login
     sed -i 's/^Port [0-9]*/Port '${SSHD_PORT}'/' /etc/ssh/sshd_config
@@ -27,9 +32,6 @@ function basic_server_setup {
     # Set hostname and FQDN
     sed -i 's/'${SERVER_IP}'.*/'${SERVER_IP}' '${HOSTNAME_FQDN}' '${HOSTNAME}'/' /etc/hosts
     echo "$HOSTNAME" > /etc/hostname
-    if  [ $DISTRO = ""]; then
-        echo -e "\033[35;1m  You need to run the setup_apt function first, or 'aptitude -y install lsb-release' \033[0m"
-    fi 
 
     if [ $DISTRO = "Debian"]; then
         # Debian system, use hostname.sh
@@ -52,13 +54,12 @@ function basic_server_setup {
 
 
 function setup_apt {
-  
 
     cp /etc/apt/{sources.list,sources.list.bak}
 
-    if [ $DISTRO  == "Debian" ]; then
-        echo -e "\033[35;1m Its Debian \033[0m"
+    if [ $DISTRO = "Debian" ]; then
         # Debian system, use Debian sources.list
+        echo -e "\033[35;1mConfiguring APT for Debian. \033[0m"
         cat > /etc/apt/sources.list <<EOF
 # Main repo
 deb http://ftp.$APT_REGION.debian.org/debian $RELEASE main non-free contrib
@@ -70,11 +71,24 @@ deb-src http://security.debian.org/ $RELEASE/updates main contrib non-free
 
 EOF
 
-    else 
-        if [ $DISTRO  == "Ubuntu" ]; then 
-        echo -e "\033[35;1m Its Ubuntu \033[0m"
-    # Otherwise use Ubuntu sources.list
+        # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
+        if [ $RELEASE = "squeeze" ]; then
+            echo -e "\033[35;1mEnabling DotDeb repo for Debian $RELEASE. \033[0m"
+            cat >> /etc/apt/sources.list <<EOF
+# Dotdeb
+deb http://packages.dotdeb.org stable all
+deb-src http://packages.dotdeb.org stable all
 
+EOF
+            wget http://www.dotdeb.org/dotdeb.gpg
+            cat dotdeb.gpg | apt-key add -
+            aptitude update
+        fi # End if RELEASE = squeeze
+    fi # End if DISTRO = Debian
+
+    if [ $DISTRO = "Ubuntu" ]; then
+        # Ubuntu system, use Ubuntu sources.list
+        echo -e "\033[35;1mConfiguring APT for Ubuntu. \033[0m"
         cat > /etc/apt/sources.list <<EOF
 # Main repo
 deb http://$APT_REGION.archive.ubuntu.com/ubuntu/ $RELEASE main restricted universe multiverse
@@ -87,30 +101,15 @@ deb http://security.ubuntu.com/ubuntu $RELEASE-security main restricted universe
 deb-src http://security.ubuntu.com/ubuntu $RELEASE-security main restricted universe
 
 EOF
-        else
-             
-            if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian"  ]; then
-                # throw an error if its not supported os, 
-                echo -e "\033[35;1m Sorry, Distro: '"$DISTRO"' and Release: '"$RELEASE"' are not supported at this time. \033[0m"
-                exit
-            fi
-        fi # End if 
-    fi
-    # Need to add Dotdeb repo for PHP5-FPM when using Debian 6.0
-    if [ $RELEASE = "squeeze" ]; then
-         echo -e "\033[35;1m Its Debian '"$RELEASE"' \033[0m"
-        cat >> /etc/apt/sources.list <<EOF
-# Dotdeb
-deb http://packages.dotdeb.org stable all
-deb-src http://packages.dotdeb.org stable all
+    fi # End if DISTRO = Ubuntu
 
-EOF
-        wget http://www.dotdeb.org/dotdeb.gpg
-        cat dotdeb.gpg | apt-key add -
-        aptitude update
+    #  Report error if detected distro is not yet supported
+    if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian"  ]; then
+        echo -e "\033[35;1mSorry, Distro: $DISTRO and Release: $RELEASE is not supported at this time. \033[0m"
+        exit 1
     fi
 
-    echo -e "\033[35;1m Successfully configured /etc/apt/sources.list\033[0m"
+    echo -e "\033[35;1m Successfully configured /etc/apt/sources.list \033[0m"
 
 } # End function setup_apt
 
@@ -188,14 +187,14 @@ function optimize_stack {
         sed -i 's/\trotate .*/\trotate 10/' $nginx_file
 
     # If using Apache, copy over apache2.conf
-    else 
+    else
         cat ./config/apache2.conf > /etc/apache2/apache2.conf
 
         # Change logrotate for Apache2 log files to keep 10 days worth of logs
         sed -i 's/\tweekly/\tdaily/' /etc/logrotate.d/apache2
         sed -i 's/\trotate .*/\trotate 10/' /etc/logrotate.d/apache2
-        
-        # Remove Apache server information from headers. 
+
+        # Remove Apache server information from headers.
         sed -i 's/ServerTokens .*/ServerTokens Prod/' /etc/apache2/conf.d/security
         sed -i 's/ServerSignature .*/ServerSignature Off/' /etc/apache2/conf.d/security
 
@@ -204,7 +203,7 @@ function optimize_stack {
     fi
 
     if [ $AWSTATS_ENABLE = 'yes' ]; then
-        # Configure Awstats 
+        # Configure AWStats
         temp=`grep -i sitedomain /etc/awstats/awstats.conf.local | wc -l`
         if [ $temp -lt 1 ]; then
             echo SiteDomain="$HOSTNAME_FQDN" >> /etc/awstats/awstats.conf.local
@@ -338,7 +337,7 @@ function check_tmp_secured {
 
     if [ $temp1  -gt 0 ] || [ $temp2 -gt 0 ]; then
         return 1
-    else 
+    else
         return 0
     fi
 
@@ -390,7 +389,7 @@ function secure_tmp_dd {
     # Backup /tmp
     cp -Rpf /tmp /tmpbackup
 
-    # Secure /tmp 
+    # Secure /tmp
     mount -o loop,noexec,nosuid,rw /var/tempFS /tmp
     chmod 1777 /tmp
     echo "/var/tempFS /tmp ext3 loop,nosuid,noexec,rw 0 0" >> /etc/fstab
@@ -487,7 +486,7 @@ install)
     install_postfix
     restart_webserver
     service php5-fpm restart
-    echo -e "\033[35;1m Nginx + PHP-FPM + MySQL install complete! \033[0m"
+    echo -e "\033[35;1m Webserver + PHP-FPM + MySQL install complete! \033[0m"
     ;;
 optimize)
     optimize_stack

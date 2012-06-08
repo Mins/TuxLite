@@ -95,7 +95,7 @@ function php_fpm_add_user {
 
     service php5-fpm restart
 
-} # End function php_fpm_add_user 
+} # End function php_fpm_add_user
 
 
 function add_domain {
@@ -348,7 +348,7 @@ function check_domain_valid {
         return 0
     fi
 
-} # End function check_domain_valid 
+} # End function check_domain_valid
 
 
 function awstats_on {

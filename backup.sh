@@ -5,7 +5,7 @@ FIND_PATH="/home/*/domains/*"
 # (1)/var(2)/lib(3)/mysql(4)/dbname(5)
 AWK_DB_POS="5"
 # Used to filter domain name from its full system path
-# E.g. (1)/home(2)/john(3)/domains(4)/johndomain.com(5) 
+# E.g. (1)/home(2)/john(3)/domains(4)/johndomain.com(5)
 AWK_DOMAIN_POS="5"
 
 
@@ -47,7 +47,7 @@ function find_available_domains {
 
     # If exit status is 0, there are domains available
     # Collect available domains to a temporary file
-    if [ $? -eq 0 ]; then 
+    if [ $? -eq 0 ]; then
         find $FIND_PATH -maxdepth 0 > /tmp/domain.txt
         DOMAINS_AVAILABLE=`cat /tmp/domain.txt | wc -l`
     # Remove fcgi-bin directory as available domain. #Not used for multiuser scripts
@@ -141,7 +141,7 @@ function cron_backupdb {
     DATABASE=`cat /tmp/database.txt | awk NR==$SELECTDB | awk -F"/" '{ print $'${AWK_DB_POS}' }'`
     # Remove temporary file
     rm -rf /tmp/database.txt
-  
+
     # Check to see if database is already backed up under cronjobs
     # First dump cron contents to temporary file
     crontab -l > /tmp/tmpcron.txt
