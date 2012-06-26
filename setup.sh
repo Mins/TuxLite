@@ -12,7 +12,7 @@ source ./options.conf
 DISTRO=`lsb_release -i -s`
 # Distribution's release. Squeeze, wheezy, precise etc
 RELEASE=`lsb_release -c -s`
-if  [ $DISTRO = ""]; then
+if  [ $DISTRO = "" ]; then
     echo -e "\033[35;1mPlease run 'aptitude -y install lsb-release' before using this script.\033[0m"
     exit 1
 fi
@@ -33,7 +33,7 @@ function basic_server_setup {
     sed -i 's/'${SERVER_IP}'.*/'${SERVER_IP}' '${HOSTNAME_FQDN}' '${HOSTNAME}'/' /etc/hosts
     echo "$HOSTNAME" > /etc/hostname
 
-    if [ $DISTRO = "Debian"]; then
+    if [ $DISTRO = "Debian" ]; then
         # Debian system, use hostname.sh
         service hostname.sh start
     else
@@ -104,7 +104,7 @@ EOF
     fi # End if DISTRO = Ubuntu
 
     #  Report error if detected distro is not yet supported
-    if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian"  ]; then
+    if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian" ]; then
         echo -e "\033[35;1mSorry, Distro: $DISTRO and Release: $RELEASE is not supported at this time. \033[0m"
         exit 1
     fi
