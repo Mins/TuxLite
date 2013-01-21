@@ -66,7 +66,7 @@ function basic_server_setup {
     # Add  SUDO_USER ssh key
     mkdir /home/$SUDO_USER/.ssh
     touch /home/$SUDO_USER/.ssh/authorized_keys
-    echo SUDO_USER_PUBLICKEY >> /home/$SUDO_USER/.ssh/authorized_keys
+    echo $SUDO_USER_PUBLICKEY >> /home/$SUDO_USER/.ssh/authorized_keys
     chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.ssh
     chmod 700 /home/$SUDO_USER/.ssh
     chmod 600 /home/$SUDO_USER/.ssh/authorized_keys
