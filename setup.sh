@@ -27,51 +27,6 @@ function basic_server_setup {
     # Reconfigure sshd - change port and disable root login
     sed -i 's/^Port [0-9]*/Port '${SSHD_PORT}'/' /etc/ssh/sshd_config
     sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-
-    # -------------------------------------------------------------------------
-    # Modified version of script to add a user to Linux system
-    # -------------------------------------------------------------------------
-    # Copyright (c) 2007 nixCraft project <http://bash.cyberciti.biz/>
-    # This script is licensed under GNU GPL version 2.0 or above
-    # Comment/suggestion: <vivek at nixCraft DOT com>
-    # -------------------------------------------------------------------------
-    # See url for more info:
-    # http://www.cyberciti.biz/tips/howto-write-shell-script-to-add-user.html
-    # -------------------------------------------------------------------------
-    if [ $(id -u) -eq 0 ]; then
-        egrep "^$SUDO_USER" /etc/passwd >/dev/null
-        if [ $? -eq 0 ]; then
-            echo "$SUDO_USER exists!"
-            exit 1
-        else
-            pass=$(perl -e 'print crypt($ARGV[0], "password")' $SUDO_USER_PASSWORD)
-            useradd -s /bin/bash -m -d /home/$SUDO_USER -U -p $pass $SUDO_USER
-            [ $? -eq 0 ] && echo "$SUDO_USER has been added to system!" || echo "Failed to add a $SUDO_USER!"
-        fi
-    else
-        echo "Only root may add a user to the system"
-        exit 2
-    fi
-
-    # Add SUDO_USER to SSH AllowUsers
-    echo "AllowUsers $SUDO_USER" >> /etc/ssh/sshd_config
-
-    # Add SUDO_USER to sudoers
-    cp /etc/sudoers /etc/sudoers.tmp
-    chmod 0640 /etc/sudoers.tmp
-    echo "$SUDO_USER    ALL=(ALL) ALL" >> /etc/sudoers.tmp
-    chmod 0440 /etc/sudoers.tmp
-    mv /etc/sudoers.tmp /etc/sudoers
-
-    # Add  SUDO_USER ssh key
-    mkdir /home/$SUDO_USER/.ssh
-    touch /home/$SUDO_USER/.ssh/authorized_keys
-    echo $SUDO_USER_PUBLICKEY >> /home/$SUDO_USER/.ssh/authorized_keys
-    chown -R $SUDO_USER:$SUDO_USER /home/$SUDO_USER/.ssh
-    chmod 700 /home/$SUDO_USER/.ssh
-    chmod 600 /home/$SUDO_USER/.ssh/authorized_keys
-    sed -i "s/#AuthorizedKeysFile/AuthorizedKeysFile/g" /etc/ssh/sshd_config
-
     service ssh reload
 
     # Set hostname and FQDN
