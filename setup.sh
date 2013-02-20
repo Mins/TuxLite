@@ -298,7 +298,41 @@ function optimize_stack {
     echo -e " "
     echo -e "\033[35;1m Generating SSL certs, you do not have to enter any details when asked. But recommended to enter Hostname FQDN for 'Common Name'! \033[0m"
     mkdir /etc/ssl/localcerts
-    openssl req -new -x509 -days 3650 -nodes -out /etc/ssl/localcerts/webserver.pem -keyout /etc/ssl/localcerts/webserver.key
+
+    aptitude -y install expect
+
+    GENERATE_CERT=$(expect -c "
+
+        set timeout 10
+        spawn openssl req -new -x509 -days 3650 -nodes -out /etc/ssl/localcerts/webserver.pem -keyout /etc/ssl/localcerts/webserver.key
+
+        expect \"Country Name (2 letter code) \[AU\]:\"
+        send \"\r\"
+
+        expect \"State or Province Name (full name) \[Some-State\]:\"
+        send \"\r\"
+
+        expect \"Locality Name (eg, city) \[\]:\"
+        send \"\r\"
+
+        expect \"Organization Name (eg, company) \[Internet Widgits Pty Ltd\]:\"
+        send \"\r\"
+
+        expect \"Organizational Unit Name (eg, section) \[\]:\"
+        send \"\r\"
+
+        expect \"Common Name (eg, YOUR name) \[\]:\"
+        send \"\r\"
+
+        expect \"Email Address \[\]:\"
+        send \"\r\"
+
+        expect eof
+    ")
+
+    echo "$GENERATE_CERT"
+
+    aptitude -y purge expect
 
     # Tweak my.cnf. Commented out. Best to let users configure my.cnf on their own
     #cp /etc/mysql/{my.cnf,my.cnf.bak}
