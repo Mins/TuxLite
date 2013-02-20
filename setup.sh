@@ -166,7 +166,37 @@ function install_mysql {
 
     echo "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
     echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
-    aptitude -y install mysql-server mysql-client
+
+
+    if [ $INSTALL_MARIADB = 'yes' ]; then
+        cat > /etc/apt/sources.list.d/MariaDB.list<<EOF
+
+# http://mariadb.org/mariadb/repositories/
+deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
+deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
+
+EOF
+        # Import MariaDB signing key
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+        aptitude update
+        aptitude -y install mariadb-server mariadb-client
+
+        # Set APT pinning for MariaDB packages
+        cat > /etc/apt/preferences.d/MariaDB<<EOF
+
+# Prevent potential conflict with main repo that causes
+# MariaDB to be uninstalled when upgrading mysql-common
+Package: *
+Pin: origin ftp.osuosl.org
+Pin-Priority: 1000
+
+EOF
+
+    else
+
+        aptitude -y install mysql-server mysql-client
+
+    fi
 
     echo -e "\033[35;1m Securing mysql - Please have your mysql root password at hand! \033[0m"
     sleep 5
