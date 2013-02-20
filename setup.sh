@@ -202,7 +202,37 @@ EOF
     echo -e "\033[35;1m Securing mysql - Please have your mysql root password at hand! \033[0m"
     sleep 5
 
-    mysql_secure_installation
+    aptitude -y install expect
+
+    SECURE_MYSQL=$(expect -c "
+
+        set timeout 10
+        spawn mysql_secure_installation
+
+        expect \"Enter current password for root (enter for none):\"
+        send \"$MYSQL_ROOT_PASSWORD\r\"
+
+        expect \"Change the root password?\"
+        send \"n\r\"
+
+        expect \"Remove anonymous users?\"
+        send \"y\r\"
+
+        expect \"Disallow root login remotely?\"
+        send \"y\r\"
+
+        expect \"Remove test database and access to it?\"
+        send \"y\r\"
+
+        expect \"Reload privilege tables now?\"
+        send \"y\r\"
+
+        expect eof
+    ")
+
+    echo "$SECURE_MYSQL"
+
+    aptitude -y purge expect
 
 } # End function install_mysql
 
