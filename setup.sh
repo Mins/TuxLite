@@ -176,10 +176,6 @@ deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lo
 deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
 
 EOF
-        # Import MariaDB signing key
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-        aptitude update
-        aptitude -y install mariadb-server mariadb-client
 
         # Set APT pinning for MariaDB packages
         cat > /etc/apt/preferences.d/MariaDB<<EOF
@@ -191,6 +187,11 @@ Pin: origin ftp.osuosl.org
 Pin-Priority: 1000
 
 EOF
+
+        # Import MariaDB signing key
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+        aptitude update
+        aptitude -y install mariadb-server mariadb-client
 
     else
 
