@@ -553,9 +553,9 @@ basic)
     ;;
 install)
     install_webserver
+    install_mysql
     install_php
     install_extras
-    install_mysql
     install_postfix
     restart_webserver
     service php5-fpm restart
