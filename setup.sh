@@ -167,10 +167,8 @@ function install_mysql {
     echo "mysql-server mysql-server/root_password password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
     echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
 
-
     if [ $INSTALL_MARIADB = 'yes' ]; then
         cat > /etc/apt/sources.list.d/MariaDB.list<<EOF
-
 # http://mariadb.org/mariadb/repositories/
 deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
 deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
@@ -179,7 +177,6 @@ EOF
 
         # Set APT pinning for MariaDB packages
         cat > /etc/apt/preferences.d/MariaDB<<EOF
-
 # Prevent potential conflict with main repo that causes
 # MariaDB to be uninstalled when upgrading mysql-common
 Package: *
@@ -199,39 +196,30 @@ EOF
 
     fi
 
-    echo -e "\033[35;1m Securing mysql - Please have your mysql root password at hand! \033[0m"
+    echo -e "\033[35;1m Securing MySQL... \033[0m"
     sleep 5
 
     aptitude -y install expect
 
     SECURE_MYSQL=$(expect -c "
-
         set timeout 10
         spawn mysql_secure_installation
-
         expect \"Enter current password for root (enter for none):\"
         send \"$MYSQL_ROOT_PASSWORD\r\"
-
         expect \"Change the root password?\"
         send \"n\r\"
-
         expect \"Remove anonymous users?\"
         send \"y\r\"
-
         expect \"Disallow root login remotely?\"
         send \"y\r\"
-
         expect \"Remove test database and access to it?\"
         send \"y\r\"
-
         expect \"Reload privilege tables now?\"
         send \"y\r\"
-
         expect eof
     ")
 
     echo "$SECURE_MYSQL"
-
     aptitude -y purge expect
 
 } # End function install_mysql
@@ -296,42 +284,32 @@ function optimize_stack {
 
     # Generating self signed SSL certs for securing phpMyAdmin, script logins etc
     echo -e " "
-    echo -e "\033[35;1m Generating SSL certs, you do not have to enter any details when asked. But recommended to enter Hostname FQDN for 'Common Name'! \033[0m"
+    echo -e "\033[35;1m Generating self signed SSL cert... \033[0m"
     mkdir /etc/ssl/localcerts
 
     aptitude -y install expect
 
     GENERATE_CERT=$(expect -c "
-
         set timeout 10
         spawn openssl req -new -x509 -days 3650 -nodes -out /etc/ssl/localcerts/webserver.pem -keyout /etc/ssl/localcerts/webserver.key
-
         expect \"Country Name (2 letter code) \[AU\]:\"
         send \"\r\"
-
         expect \"State or Province Name (full name) \[Some-State\]:\"
         send \"\r\"
-
         expect \"Locality Name (eg, city) \[\]:\"
         send \"\r\"
-
         expect \"Organization Name (eg, company) \[Internet Widgits Pty Ltd\]:\"
         send \"\r\"
-
         expect \"Organizational Unit Name (eg, section) \[\]:\"
         send \"\r\"
-
         expect \"Common Name (eg, YOUR name) \[\]:\"
         send \"\r\"
-
         expect \"Email Address \[\]:\"
         send \"\r\"
-
         expect eof
     ")
 
     echo "$GENERATE_CERT"
-
     aptitude -y purge expect
 
     # Tweak my.cnf. Commented out. Best to let users configure my.cnf on their own
