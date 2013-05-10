@@ -160,8 +160,8 @@ server {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
-            fastcgi_index  index.php;
-            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
         }
 
         location ~ /\.ht {
@@ -186,8 +186,8 @@ server {
 
         ssl_session_timeout 5m;
 
-        ssl_protocols  SSLv2 SSLv3 TLSv1;
-        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_protocols SSLv2 SSLv3 TLSv1;
+        ssl_ciphers HIGH:!aNULL:!MD5;
         ssl_prefer_server_ciphers on;
 
         location / {
@@ -198,8 +198,8 @@ server {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
-            fastcgi_index  index.php;
-            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
         }
 }
 EOF

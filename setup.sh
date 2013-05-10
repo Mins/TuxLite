@@ -56,7 +56,7 @@ function basic_server_setup {
 function setup_apt {
 
     # If user enables apt option in options.conf
-    if [ CONFIGURE_APT = "yes" ]; then
+    if [ $CONFIGURE_APT = "yes" ]; then
         cp /etc/apt/{sources.list,sources.list.bak}
 
 
