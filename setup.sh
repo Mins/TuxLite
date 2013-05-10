@@ -55,24 +55,28 @@ function basic_server_setup {
 
 function setup_apt {
 
-    cp /etc/apt/{sources.list,sources.list.bak}
+    # If user enables apt option in options.conf
+    if [ CONFIGURE_APT = "yes" ]; then
+        cp /etc/apt/{sources.list,sources.list.bak}
 
-    if [ $DISTRO = "Debian" ]; then
-        # Debian system, use Debian sources.list
-        echo -e "\033[35;1mConfiguring APT for Debian. \033[0m"
-        cat > /etc/apt/sources.list <<EOF
+
+        if [ $DISTRO = "Debian" ]; then
+            # Debian system, use Debian sources.list
+            echo -e "\033[35;1mConfiguring APT for Debian. \033[0m"
+            cat > /etc/apt/sources.list <<EOF
 # Main repo
-deb http://ftp.$APT_REGION.debian.org/debian $RELEASE main non-free contrib
-deb-src  http://ftp.$APT_REGION.debian.org/debian $RELEASE main non-free contrib
-
+deb http://http.debian.net/debian $RELEASE main non-free contrib
+deb-src http://http.debian.net/debian $RELEASE main non-free contrib
 # Security
 deb http://security.debian.org/ $RELEASE/updates main contrib non-free
 deb-src http://security.debian.org/ $RELEASE/updates main contrib non-free
 
 EOF
+        fi # End if DISTRO = Debian
+
 
         # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
-        if [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
+        if  [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
             echo -e "\033[35;1mEnabling DotDeb repo for Debian $RELEASE. \033[0m"
             cat >> /etc/apt/sources.list.d/dotdeb.list <<EOF
 # Dotdeb
@@ -83,33 +87,36 @@ EOF
             wget http://www.dotdeb.org/dotdeb.gpg
             cat dotdeb.gpg | apt-key add -
             aptitude update
-        fi # End if RELEASE = squeeze
-    fi # End if DISTRO = Debian
+        fi # End if DISTRO = Debian && RELEASE = squeeze
 
-    if [ $DISTRO = "Ubuntu" ]; then
-        # Ubuntu system, use Ubuntu sources.list
-        echo -e "\033[35;1mConfiguring APT for Ubuntu. \033[0m"
-        cat > /etc/apt/sources.list <<EOF
+
+        if [ $DISTRO = "Ubuntu" ]; then
+            # Ubuntu system, use Ubuntu sources.list
+            echo -e "\033[35;1mConfiguring APT for Ubuntu. \033[0m"
+            cat > /etc/apt/sources.list <<EOF
 # Main repo
-deb http://$APT_REGION.archive.ubuntu.com/ubuntu/ $RELEASE main restricted universe multiverse
-deb-src http://$APT_REGION.archive.ubuntu.com/ubuntu/ $RELEASE main restricted universe
+deb mirror://mirrors.ubuntu.com/mirrors.txt $RELEASE main restricted universe multiverse
+deb-src mirror://mirrors.ubuntu.com/mirrors.txt $RELEASE main restricted universe multiverse
 
 # Security & updates
-deb http://$APT_REGION.archive.ubuntu.com/ubuntu/ $RELEASE-updates main restricted universe multiverse
-deb-src http://$APT_REGION.archive.ubuntu.com/ubuntu/ $RELEASE-updates main restricted universe
-deb http://security.ubuntu.com/ubuntu $RELEASE-security main restricted universe
-deb-src http://security.ubuntu.com/ubuntu $RELEASE-security main restricted universe
+deb mirror://mirrors.ubuntu.com/mirrors.txt $RELEASE-updates main restricted universe multiverse
+deb-src mirror://mirrors.ubuntu.com/mirrors.txt $RELEASE-updates main restricted universe multiverse
+deb mirror://mirrors.ubuntu.com/mirrors.txt $RELEASE-security main restricted universe multiverse
+deb-src mirror://mirrors.ubuntu.com/mirrors.txt $RELEASE-security main restricted universe multiverse
 
 EOF
-    fi # End if DISTRO = Ubuntu
+        fi # End if DISTRO = Ubuntu
 
-    #  Report error if detected distro is not yet supported
-    if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian" ]; then
-        echo -e "\033[35;1mSorry, Distro: $DISTRO and Release: $RELEASE is not supported at this time. \033[0m"
-        exit 1
-    fi
+
+        #  Report error if detected distro is not yet supported
+        if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian" ]; then
+            echo -e "\033[35;1mSorry, Distro: $DISTRO and Release: $RELEASE is not supported at this time. \033[0m"
+            exit 1
+        fi
 
     echo -e "\033[35;1m Successfully configured /etc/apt/sources.list \033[0m"
+
+    fi # End if CONFIGURE_APT = yes
 
 } # End function setup_apt
 
