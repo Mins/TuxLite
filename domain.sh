@@ -138,7 +138,7 @@ EOF
     # Virtualhost entry
     # From options.conf, nginx = 1, apache = 2
     if [ $WEBSERVER -eq 1 ]; then
-        # Nginx webserver. Use Nginx Vhost config
+        # Nginx webserver. Use Nginx vHost config
         cat > $DOMAIN_CONFIG_PATH <<EOF
 server {
         listen 80;
@@ -153,13 +153,15 @@ server {
         error_page 404 /404.html;
 
         location / {
-            #try_files \$uri \$uri/ /index.php;
+            # try_files \$uri \$uri/ /index.php\?\$args =404;
         }
 
         location ~ \.php$ {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         }
 
         location ~ /\.ht {
@@ -184,22 +186,24 @@ server {
 
         ssl_session_timeout 5m;
 
-        ssl_protocols SSLv3 TLSv1;
-        ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+        ssl_protocols  SSLv2 SSLv3 TLSv1;
+        ssl_ciphers  HIGH:!aNULL:!MD5;
         ssl_prefer_server_ciphers on;
 
         location / {
-            #try_files \$uri \$uri/ /index.php;
+            # try_files \$uri \$uri/ /index.php\?\$args =404;
         }
 
         location ~ \.php$ {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         }
 }
 EOF
-    else # Use Apache Vhost config
+    else # Use Apache vHost config
         cat > $DOMAIN_CONFIG_PATH <<EOF
 <VirtualHost *:80>
 
