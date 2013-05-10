@@ -72,12 +72,12 @@ deb-src http://security.debian.org/ $RELEASE/updates main contrib non-free
 EOF
 
         # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
-        if [ $RELEASE = "squeeze" ]; then
+        if [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
             echo -e "\033[35;1mEnabling DotDeb repo for Debian $RELEASE. \033[0m"
-            cat >> /etc/apt/sources.list <<EOF
+            cat >> /etc/apt/sources.list.d/dotdeb.list <<EOF
 # Dotdeb
-deb http://packages.dotdeb.org stable all
-deb-src http://packages.dotdeb.org stable all
+deb http://packages.dotdeb.org squeeze all
+deb-src http://packages.dotdeb.org squeeze all
 
 EOF
             wget http://www.dotdeb.org/dotdeb.gpg
