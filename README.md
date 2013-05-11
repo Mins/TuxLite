@@ -16,7 +16,7 @@ and bloated control panels.
 The following are installed:-
 
 -   Apache2 with mpm\_event or Nginx
--   MySQL
+-   MySQL or MariaDB
 -   PHP-FPM + commonly used PHP modules
 -   Postfix mail server (securely configured to be outgoing only)
 -   Varnish cache (optional)
@@ -30,6 +30,34 @@ kindly refer to these links:-
 
 [Download](http://tuxlite.com/download/)
 
+### Quick Install (Git)
+
+    # Install git and clone TuxLite
+    aptitude install git
+    git clone https://github.com/Mins/TuxLite.git
+    cd TuxLite
+    
+    # Edit options to enter server IP, MySQL password etc.
+    nano options.conf
+    
+    # Make all scripts executable.
+    chmod 700 *.sh
+    chmod 700 options.conf
+    
+    #Install LAMP or LNMP stack.
+    ./install.sh
+    
+    # Add a new Linux user and add domains to the user.
+    adduser johndoe
+    ./domain.sh add johndoe yourdomain.com
+    ./domain.sh add johndoe subdomain.yourdomain.com
+    
+    # Install Adminer or phpMyAdmin
+    ./setup.sh dbgui
+    
+    # Enable/disable public viewing of Adminer/phpMyAdmin
+    ./domain.sh dbgui on
+    ./domain.sh dbgui off
 
 ### Requirements
 
