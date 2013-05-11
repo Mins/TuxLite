@@ -61,6 +61,7 @@ kindly refer to these links:-
 
 ### Requirements
 
+-   Supports Debian 6 and 7, Ubuntu 12.04, 12.10 and 13.04.
 -   A server with at least 80MB RAM. 256MB and above recommended.
 -   Basic Linux knowledge. You will need know how to connect to your
     server remotely.
