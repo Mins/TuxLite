@@ -44,7 +44,7 @@ kindly refer to these links:-
     chmod 700 *.sh
     chmod 700 options.conf
     
-    #Install LAMP or LNMP stack.
+    # Install LAMP or LNMP stack.
     ./install.sh
     
     # Add a new Linux user and add domains to the user.
@@ -61,7 +61,7 @@ kindly refer to these links:-
 
 ### Requirements
 
--   A VPS with 80MB RAM or above. 256MB recommended.
+-   A server with at least 80MB RAM. 256MB and above recommended.
 -   Basic Linux knowledge. You will need know how to connect to your
     server remotely.
 -   Basic text editor knowledge. For beginners, learning GNU nano is
@@ -75,11 +75,10 @@ reading the "getting started" tutorials in Linode Library.
 -   TuxLite LAMP stack configures Apache with mpm\_event and PHP with
     fastcgi (PHP-FPM). This gives much higher performance and lower memory
     consumption than the regular LAMP tutorials/guides using mod\_php.
--   100% official distribution packages. You are not at the mercy of the
+-   Uses official distribution packages. You are not at the mercy of the
     script maintainer to keep your servers updated. All installed
     software are tuned, optimized and secured.
--   Extremely minimal resource usage. Fresh install requires only
-    50-60MB RAM.
+-   Minimal resource usage. Fresh install requires only 50-60MB RAM.
 -   Free from unnecessary or custom changes to your server. Everything
     is configured according to Debian/Ubuntu standards.
 -   Automatic virtualhost configuration with log rotation, AWStats
