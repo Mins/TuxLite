@@ -1,6 +1,4 @@
-#!/bin/bash
-###############################################################################################
-# TuxLite - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
+te - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
 # Nginx/Apache + PHP5-FPM + MySQL                                                             #
 # Stack is optimized/tuned for a 256MB server                                                 #
 # Email your questions to s@tuxlite.com                                                       #
@@ -59,7 +57,6 @@ function setup_apt {
     if [ $CONFIGURE_APT = "yes" ]; then
         cp /etc/apt/{sources.list,sources.list.bak}
 
-
         if [ $DISTRO = "Debian" ]; then
             # Debian system, use Debian sources.list
             echo -e "\033[35;1mConfiguring APT for Debian. \033[0m"
@@ -93,34 +90,43 @@ EOF
         fi # End if DISTRO = Ubuntu
 
 
-        ## Third party mirrors ##
+        #  Report error if detected distro is not yet supported
+        if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian" ]; then
+            echo -e "\033[35;1mSorry, Distro: $DISTRO and Release: $RELEASE is not supported at this time. \033[0m"
+            exit 1
+        fi
 
-        # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
-        if  [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
-            echo -e "\033[35;1mEnabling DotDeb repo for Debian 6.0 Squeeze. \033[0m"
-            cat > /etc/apt/sources.list.d/dotdeb.list <<EOF
+    fi # End if CONFIGURE_APT = yes
+
+
+    ## Third party mirrors ##
+
+    # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
+    if  [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
+        echo -e "\033[35;1mEnabling DotDeb repo for Debian 6.0 Squeeze. \033[0m"
+        cat > /etc/apt/sources.list.d/dotdeb.list <<EOF
 # Dotdeb
 deb http://packages.dotdeb.org squeeze all
 deb-src http://packages.dotdeb.org squeeze all
 
 EOF
-            wget http://www.dotdeb.org/dotdeb.gpg
-            cat dotdeb.gpg | apt-key add -
-        fi # End if DISTRO = Debian && RELEASE = squeeze
+        wget http://www.dotdeb.org/dotdeb.gpg
+        cat dotdeb.gpg | apt-key add -
+    fi # End if DISTRO = Debian && RELEASE = squeeze
 
 
-        # If user wants to install nginx from official repo and webserver=nginx
-        if  [ $USE_NGINX_ORG_REPO = "yes" ] && [ $WEBSERVER = 1 ]; then
-            echo -e "\033[35;1mEnabling nginx.org repo for Debian $RELEASE. \033[0m"
-            cat > /etc/apt/sources.list.d/nginx.list <<EOF
+    # If user wants to install nginx from official repo and webserver=nginx
+    if  [ $USE_NGINX_ORG_REPO = "yes" ] && [ $WEBSERVER = 1 ]; then
+        echo -e "\033[35;1mEnabling nginx.org repo for Debian $RELEASE. \033[0m"
+        cat > /etc/apt/sources.list.d/nginx.list <<EOF
 # Official Nginx.org repository
 deb http://nginx.org/packages/`echo $DISTRO | tr '[:upper:]' '[:lower:]'`/ $RELEASE nginx
 deb-src http://nginx.org/packages/`echo $DISTRO | tr '[:upper:]' '[:lower:]'`/ $RELEASE nginx
 
 EOF
 
-            # Set APT pinning for Nginx package
-            cat > /etc/apt/preferences.d/Nginx <<EOF
+        # Set APT pinning for Nginx package
+        cat > /etc/apt/preferences.d/Nginx <<EOF
 # Prevent potential conflict with main repo/dotdeb 
 # Always install from official nginx.org repo
 Package: nginx
@@ -128,23 +134,23 @@ Pin: origin nginx.org
 Pin-Priority: 1000
 
 EOF
-            wget http://nginx.org/packages/keys/nginx_signing.key
-            cat nginx_signing.key | apt-key add -
-        fi # End if USE_NGINX_ORG_REPO = yes a&& WEBSERVER = 1
+        wget http://nginx.org/packages/keys/nginx_signing.key
+        cat nginx_signing.key | apt-key add -
+    fi # End if USE_NGINX_ORG_REPO = yes && WEBSERVER = 1
 
 
-        # If user wants to install MariaDB instead of MySQL
-        if [ $INSTALL_MARIADB = 'yes' ]; then
-            echo -e "\033[35;1mEnabling MariaDB.org repo for $DISTRO $RELEASE. \033[0m"
-            cat > /etc/apt/sources.list.d/MariaDB.list <<EOF
+    # If user wants to install MariaDB instead of MySQL
+    if [ $INSTALL_MARIADB = 'yes' ]; then
+        echo -e "\033[35;1mEnabling MariaDB.org repo for $DISTRO $RELEASE. \033[0m"
+        cat > /etc/apt/sources.list.d/MariaDB.list <<EOF
 # http://mariadb.org/mariadb/repositories/
 deb $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
 deb-src $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
 
 EOF
 
-            # Set APT pinning for MariaDB packages
-            cat > /etc/apt/preferences.d/MariaDB <<EOF
+        # Set APT pinning for MariaDB packages
+        cat > /etc/apt/preferences.d/MariaDB <<EOF
 # Prevent potential conflict with main repo that causes
 # MariaDB to be uninstalled when upgrading mysql-common
 Package: *
@@ -153,21 +159,12 @@ Pin-Priority: 1000
 
 EOF
 
-            # Import MariaDB signing key
-            apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-        fi # End if INSTALL_MARIADB = yes
-
-
-        #  Report error if detected distro is not yet supported
-        if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian" ]; then
-            echo -e "\033[35;1mSorry, Distro: $DISTRO and Release: $RELEASE is not supported at this time. \033[0m"
-            exit 1
-        fi
+        # Import MariaDB signing key
+        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+    fi # End if INSTALL_MARIADB = yes
 
     aptitude update
     echo -e "\033[35;1m Successfully configured /etc/apt/sources.list \033[0m"
-
-    fi # End if CONFIGURE_APT = yes
 
 } # End function setup_apt
 
@@ -631,4 +628,5 @@ tmpfs)
     fi
     ;;
 esac
+
 
