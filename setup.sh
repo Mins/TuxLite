@@ -75,21 +75,6 @@ EOF
         fi # End if DISTRO = Debian
 
 
-        # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
-        if  [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
-            echo -e "\033[35;1mEnabling DotDeb repo for Debian $RELEASE. \033[0m"
-            cat >> /etc/apt/sources.list.d/dotdeb.list <<EOF
-# Dotdeb
-deb http://packages.dotdeb.org squeeze all
-deb-src http://packages.dotdeb.org squeeze all
-
-EOF
-            wget http://www.dotdeb.org/dotdeb.gpg
-            cat dotdeb.gpg | apt-key add -
-            aptitude update
-        fi # End if DISTRO = Debian && RELEASE = squeeze
-
-
         if [ $DISTRO = "Ubuntu" ]; then
             # Ubuntu system, use Ubuntu sources.list
             echo -e "\033[35;1mConfiguring APT for Ubuntu. \033[0m"
@@ -108,12 +93,78 @@ EOF
         fi # End if DISTRO = Ubuntu
 
 
+        ## Third party mirrors ##
+
+        # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
+        if  [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
+            echo -e "\033[35;1mEnabling DotDeb repo for Debian 6.0 Squeeze. \033[0m"
+            cat > /etc/apt/sources.list.d/dotdeb.list <<EOF
+# Dotdeb
+deb http://packages.dotdeb.org squeeze all
+deb-src http://packages.dotdeb.org squeeze all
+
+EOF
+            wget http://www.dotdeb.org/dotdeb.gpg
+            cat dotdeb.gpg | apt-key add -
+        fi # End if DISTRO = Debian && RELEASE = squeeze
+
+
+        # If user wants to install nginx from official repo and webserver=nginx
+        if  [ $USE_NGINX_ORG_REPO = "yes" ] && [ $WEBSERVER = 1 ]; then
+            echo -e "\033[35;1mEnabling nginx.org repo for Debian $RELEASE. \033[0m"
+            cat > /etc/apt/sources.list.d/nginx.list <<EOF
+# Official Nginx.org repository
+deb http://nginx.org/packages/`echo $DISTRO | tr '[:upper:]' '[:lower:]'`/ $RELEASE nginx
+deb-src http://nginx.org/packages/`echo $DISTRO | tr '[:upper:]' '[:lower:]'`/ $RELEASE nginx
+
+EOF
+
+            # Set APT pinning for Nginx package
+            cat > /etc/apt/preferences.d/Nginx <<EOF
+# Prevent potential conflict with main repo/dotdeb 
+# Always install from official nginx.org repo
+Package: nginx
+Pin: origin nginx.org
+Pin-Priority: 1000
+
+EOF
+            wget http://nginx.org/packages/keys/nginx_signing.key
+            cat nginx_signing.key | apt-key add -
+        fi # End if USE_NGINX_ORG_REPO = yes a&& WEBSERVER = 1
+
+
+        # If user wants to install MariaDB instead of MySQL
+        if [ $INSTALL_MARIADB = 'yes' ]; then
+            echo -e "\033[35;1mEnabling MariaDB.org repo for $DISTRO $RELEASE. \033[0m"
+            cat > /etc/apt/sources.list.d/MariaDB.list <<EOF
+# http://mariadb.org/mariadb/repositories/
+deb $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
+deb-src $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
+
+EOF
+
+            # Set APT pinning for MariaDB packages
+            cat > /etc/apt/preferences.d/MariaDB <<EOF
+# Prevent potential conflict with main repo that causes
+# MariaDB to be uninstalled when upgrading mysql-common
+Package: *
+Pin: origin ftp.osuosl.org
+Pin-Priority: 1000
+
+EOF
+
+            # Import MariaDB signing key
+            apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+        fi # End if INSTALL_MARIADB = yes
+
+
         #  Report error if detected distro is not yet supported
         if [ $DISTRO  != "Ubuntu" ] && [ $DISTRO  != "Debian" ]; then
             echo -e "\033[35;1mSorry, Distro: $DISTRO and Release: $RELEASE is not supported at this time. \033[0m"
             exit 1
         fi
 
+    aptitude update
     echo -e "\033[35;1m Successfully configured /etc/apt/sources.list \033[0m"
 
     fi # End if CONFIGURE_APT = yes
@@ -124,8 +175,14 @@ EOF
 function install_webserver {
 
     # From options.conf, nginx = 1, apache = 2
-    if [ $WEBSERVER -eq 1 ]; then
+    if [ $WEBSERVER = 1 ]; then
         aptitude -y install nginx
+
+        if  [ $USE_NGINX_ORG_REPO = "yes" ]; then
+            mkdir /etc/nginx/sites-available
+            mkdir /etc/nginx/sites-enabled
+        fi
+
         # Add a catch-all default vhost
         cat ./config/nginx_default_vhost.conf > /etc/nginx/sites-available/default
     else
@@ -175,32 +232,9 @@ function install_mysql {
     echo "mysql-server mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD" | debconf-set-selections
 
     if [ $INSTALL_MARIADB = 'yes' ]; then
-        cat > /etc/apt/sources.list.d/MariaDB.list<<EOF
-# http://mariadb.org/mariadb/repositories/
-deb http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
-deb-src http://ftp.osuosl.org/pub/mariadb/repo/5.5/`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
-
-EOF
-
-        # Set APT pinning for MariaDB packages
-        cat > /etc/apt/preferences.d/MariaDB<<EOF
-# Prevent potential conflict with main repo that causes
-# MariaDB to be uninstalled when upgrading mysql-common
-Package: *
-Pin: origin ftp.osuosl.org
-Pin-Priority: 1000
-
-EOF
-
-        # Import MariaDB signing key
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-        aptitude update
         aptitude -y install mariadb-server mariadb-client
-
     else
-
         aptitude -y install mysql-server mysql-client
-
     fi
 
     echo -e "\033[35;1m Securing MySQL... \033[0m"
@@ -235,8 +269,14 @@ EOF
 function optimize_stack {
 
     # If using Nginx, copy over nginx.conf
-    if [ $WEBSERVER -eq 1 ]; then
+    if [ $WEBSERVER = 1 ]; then
         cat ./config/nginx.conf > /etc/nginx/nginx.conf
+
+        # Change nginx user from  "www-data" to "nginx". Not really necessary
+        # because "www-data" user is created when installing PHP5-FPM
+        if  [ $USE_NGINX_ORG_REPO = "yes" ]; then
+            sed -i 's/^user\s*www-data/user nginx/' /etc/nginx/nginx.conf
+        fi
 
         # Change logrotate for nginx log files to keep 10 days worth of logs
         nginx_file=`find /etc/logrotate.d/ -maxdepth 1 -name "nginx*"`
@@ -497,7 +537,7 @@ function secure_tmp_dd {
 function restart_webserver {
 
     # From options.conf, nginx = 1, apache = 2
-    if [ $WEBSERVER -eq 1 ]; then
+    if [ $WEBSERVER = 1 ]; then
         service nginx restart
     else
         apache2ctl graceful
@@ -591,3 +631,4 @@ tmpfs)
     fi
     ;;
 esac
+
