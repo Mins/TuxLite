@@ -1,4 +1,5 @@
-te - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
+###############################################################################################
+# TuxLite - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
 # Nginx/Apache + PHP5-FPM + MySQL                                                             #
 # Stack is optimized/tuned for a 256MB server                                                 #
 # Email your questions to s@tuxlite.com                                                       #
