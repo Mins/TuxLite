@@ -148,7 +148,7 @@ EOF
 # Prevent potential conflict with main repo that causes
 # MariaDB to be uninstalled when upgrading mysql-common
 Package: *
-Pin: origin ftp.osuosl.org
+Pin: origin $MARIADB_REPO_HOSTNAME
 Pin-Priority: 1000
 
 EOF
