@@ -153,7 +153,7 @@ server {
         error_page 404 /404.html;
 
         location / {
-            # try_files \$uri \$uri/ /index.php\?\$args =404;
+            # try_files \$uri \$uri/ /index.php\?\$args;
         }
 
         location ~ \.php$ {
@@ -191,9 +191,9 @@ server {
         ssl_prefer_server_ciphers on;
 
         location / {
-            # try_files \$uri \$uri/ /index.php\?\$args =404;
+            # try_files \$uri \$uri/ /index.php\?\$args;
         }
-
+        
         location ~ \.php$ {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
