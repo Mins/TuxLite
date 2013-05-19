@@ -153,7 +153,7 @@ server {
         error_page 404 /404.html;
 
         location / {
-            # try_files \$uri \$uri/ /index.php\?\$args;
+            # try_files \$uri \$uri/ /index.php?\$args;
         }
 
         location ~ \.php$ {
@@ -191,7 +191,7 @@ server {
         ssl_prefer_server_ciphers on;
 
         location / {
-            # try_files \$uri \$uri/ /index.php\?\$args;
+            # try_files \$uri \$uri/ /index.php?\$args;
         }
 
         location ~ \.php$ {
@@ -266,20 +266,20 @@ EOF
     # Add new logrotate entry for domain
     cat > /etc/logrotate.d/$LOGROTATE_FILE <<EOF
 $DOMAIN_PATH/logs/*.log {
-   daily
-   missingok
-   rotate 10
-   compress
-   delaycompress
-   notifempty
-   create 0660 $DOMAIN_OWNER $DOMAIN_OWNER
-   sharedscripts
-   prerotate
-      $AWSTATS_CMD
-   endscript
-   postrotate
-      $POSTROTATE_CMD
-   endscript
+    daily
+    missingok
+    rotate 10
+    compress
+    delaycompress
+    notifempty
+    create 0660 $DOMAIN_OWNER $DOMAIN_OWNER
+    sharedscripts
+    prerotate
+        $AWSTATS_CMD
+    endscript
+    postrotate
+        $POSTROTATE_CMD
+    endscript
 }
 EOF
     # Enable domain from sites-available to sites-enabled
