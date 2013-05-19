@@ -140,11 +140,20 @@ EOF
     if [ $WEBSERVER -eq 1 ]; then
         # Nginx webserver. Use Nginx vHost config
         cat > $DOMAIN_CONFIG_PATH <<EOF
+
+
+
+server  {
+    server_name     www.$DOMAIN.com;
+    # redirect www to non-www. for canonical urls
+    rewrite ^/(.*) $scheme://$DOMAIN.com/$1 permanent; 
+}
+
 server {
         listen 80;
         #listen [::]:80 default ipv6only=on;
 
-        server_name www.$DOMAIN $DOMAIN;
+        server_name $DOMAIN;
         root $DOMAIN_PATH/public_html;
         access_log $DOMAIN_PATH/logs/access.log;
         error_log $DOMAIN_PATH/logs/error.log;
@@ -153,10 +162,18 @@ server {
         error_page 404 /404.html;
 
         location / {
-            # try_files \$uri \$uri/ /index.php\?\$args =404;
+            # try_files \$uri \$uri/ /index.php\?\$args;
         }
 
         location ~ \.php$ {
+
+            # Return '400 Bad Request' for malformed URLs
+            # See: http://wiki.nginx.org/Pitfalls#Pass_Non-PHP_Requests_to_PHP.
+            location ~ \..*/.*\.php$ {
+                return 400;
+            }
+
+            
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
@@ -169,10 +186,16 @@ server {
         }
 }
 
+# uncomment for non-https sites and comment the below... 
+# server {
+#        listen 443;
+#        server_name _ *;
+#        rewrite ^(.*) http://$host$1 permanent;
+#  }
 
 server {
         listen 443;
-        server_name www.$DOMAIN $DOMAIN;
+        server_name $DOMAIN;
         root $DOMAIN_PATH/public_html;
         access_log $DOMAIN_PATH/logs/access.log;
         error_log $DOMAIN_PATH/logs/error.log;
@@ -191,10 +214,17 @@ server {
         ssl_prefer_server_ciphers on;
 
         location / {
-            # try_files \$uri \$uri/ /index.php\?\$args =404;
+            # try_files \$uri \$uri/ /index.php\?\$args;
         }
-
+        
         location ~ \.php$ {
+
+            # Return '400 Bad Request' for malformed URLs
+            # See: http://wiki.nginx.org/Pitfalls#Pass_Non-PHP_Requests_to_PHP.
+            location ~ \..*/.*\.php$ {
+                return 400;
+            }
+
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
