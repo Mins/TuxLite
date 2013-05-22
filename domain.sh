@@ -156,6 +156,7 @@ server {
             # try_files \$uri \$uri/ /index.php?\$args;
         }
 
+        # Pass PHP scripts to PHP-FPM
         location ~ \.php$ {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
@@ -164,9 +165,14 @@ server {
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
         }
 
+        # Deny access to hidden files
         location ~ /\.ht {
             deny all;
         }
+        
+        # prevent logging of favicon and robot request errors
+        location = /favicon.ico { log_not_found off; access_log off; }
+        location = /robots.txt  { log_not_found off; access_log off; }
 }
 
 
@@ -201,6 +207,15 @@ server {
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
         }
+        
+        # Deny access to hidden files
+        location ~ /\.ht {
+            deny all;
+        }
+        
+        # prevent logging of favicon and robot request errors
+        location = /favicon.ico { log_not_found off; access_log off; }
+        location = /robots.txt  { log_not_found off; access_log off; }
 }
 EOF
     else # Use Apache vHost config
