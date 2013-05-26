@@ -179,6 +179,9 @@ function install_webserver {
         if  [ $USE_NGINX_ORG_REPO = "yes" ]; then
             mkdir /etc/nginx/sites-available
             mkdir /etc/nginx/sites-enabled
+
+           # Disable vhost that isn't in the sites-available folder. Put a hash in front of any line.
+           sed -i 's/^[^#]/#&/' /etc/nginx/conf.d/default.conf
         fi
 
         # Add a catch-all default vhost
