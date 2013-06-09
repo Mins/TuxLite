@@ -182,10 +182,16 @@ function install_webserver {
 
            # Disable vhost that isn't in the sites-available folder. Put a hash in front of any line.
            sed -i 's/^[^#]/#&/' /etc/nginx/conf.d/default.conf
+
+           # Enable default vhost in /etc/nginx/sites-available
+           ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
         fi
 
         # Add a catch-all default vhost
         cat ./config/nginx_default_vhost.conf > /etc/nginx/sites-available/default
+
+        # Change default vhost root directory to /usr/share/nginx/html;
+        sed -i 's/\(root \/usr\/share\/nginx\/\).*/\1html;/' /etc/nginx/sites-available/default
     else
         aptitude -y install libapache2-mod-fastcgi apache2-mpm-event
 
