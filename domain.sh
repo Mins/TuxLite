@@ -138,7 +138,7 @@ EOF
     # Virtualhost entry
     # From options.conf, nginx = 1, apache = 2
     if [ $WEBSERVER -eq 1 ]; then
-        # Nginx webserver. Use Nginx Vhost config
+        # Nginx webserver. Use Nginx vHost config
         cat > $DOMAIN_CONFIG_PATH <<EOF
 server {
         listen 80;
@@ -153,18 +153,26 @@ server {
         error_page 404 /404.html;
 
         location / {
-            #try_files \$uri \$uri/ /index.php;
+            # try_files \$uri \$uri/ /index.php?\$args;
         }
 
+        # Pass PHP scripts to PHP-FPM
         location ~ \.php$ {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
         }
 
-        location ~ /\.ht {
+        # Deny access to hidden files
+        location ~ (^|/)\. {
             deny all;
         }
+
+        # Prevent logging of favicon and robot request errors
+        location = /favicon.ico { log_not_found off; access_log off; }
+        location = /robots.txt  { log_not_found off; access_log off; }
 }
 
 
@@ -184,22 +192,33 @@ server {
 
         ssl_session_timeout 5m;
 
-        ssl_protocols SSLv3 TLSv1;
-        ssl_ciphers ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv3:+EXP;
+        ssl_protocols SSLv2 SSLv3 TLSv1;
+        ssl_ciphers HIGH:!aNULL:!MD5;
         ssl_prefer_server_ciphers on;
 
         location / {
-            #try_files \$uri \$uri/ /index.php;
+            # try_files \$uri \$uri/ /index.php?\$args;
         }
 
         location ~ \.php$ {
             try_files \$uri =403;
             fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
+            fastcgi_index index.php;
+            fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
         }
+
+        # Deny access to hidden files
+        location ~ (^|/)\. {
+            deny all;
+        }
+
+        # Prevent logging of favicon and robot request errors
+        location = /favicon.ico { log_not_found off; access_log off; }
+        location = /robots.txt  { log_not_found off; access_log off; }
 }
 EOF
-    else # Use Apache Vhost config
+    else # Use Apache vHost config
         cat > $DOMAIN_CONFIG_PATH <<EOF
 <VirtualHost *:80>
 
@@ -262,20 +281,20 @@ EOF
     # Add new logrotate entry for domain
     cat > /etc/logrotate.d/$LOGROTATE_FILE <<EOF
 $DOMAIN_PATH/logs/*.log {
-	daily
-	missingok
-	rotate 10
-	compress
-	delaycompress
-	notifempty
-	create 0660 $DOMAIN_OWNER $DOMAIN_OWNER
-	sharedscripts
-	prerotate
-		$AWSTATS_CMD
-	endscript
-	postrotate
-		$POSTROTATE_CMD
-	endscript
+    daily
+    missingok
+    rotate 10
+    compress
+    delaycompress
+    notifempty
+    create 0660 $DOMAIN_OWNER $DOMAIN_OWNER
+    sharedscripts
+    prerotate
+        $AWSTATS_CMD
+    endscript
+    postrotate
+        $POSTROTATE_CMD
+    endscript
 }
 EOF
     # Enable domain from sites-available to sites-enabled

@@ -2,18 +2,35 @@
 
 source ./options.conf
 
-# Official Varnish repo
-# squeeze (Debian), wheezy (Debian), lucid (Ubuntu), precise (Ubuntu)
-# Use "squeeze" for either Debian or Ubuntu because they appear to be symlinked to each other
-LSB_RELEASE='squeeze'
-VARNISH_VER='varnish-3.0'
+# Detect distribution. Debian or Ubuntu
+DISTRO=`lsb_release -i -s`
+# Distribution's release. Squeeze, wheezy, precise etc
+RELEASE=`lsb_release -c -s`
+if  [ $DISTRO = "" ]; then
+    echo -e "\033[35;1mPlease run 'aptitude -y install lsb-release' before using this script.\033[0m"
+    exit 1
+fi
 
 function setup_varnish {
 
-    # Add repo key and install Varnish
-    aptitude update && aptitude -y install curl
-    curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
-    echo "deb http://repo.varnish-cache.org/debian/ ${LSB_RELEASE} ${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
+    # Use official varnish-cache.org repo for Debian stable and Ubuntu LTS.
+    # Otherwise, install from distro's repo
+    if [ $DISTRO = "Debian" ]; then
+        if [ $RELEASE = "squeeze" ] || [ $RELEASE = "wheezy" ]; then
+            aptitude update && aptitude -y install curl
+            curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
+            echo "deb http://repo.varnish-cache.org/debian/ ${RELEASE} varnish-${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
+        fi
+    fi
+
+    if [ $DISTRO = "Ubuntu" ]; then
+        if [ $RELEASE = "lucid" ] || [ $RELEASE = "precise" ]; then
+            aptitude update && aptitude -y install curl
+            curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
+            echo "deb http://repo.varnish-cache.org/ubuntu/ ${RELEASE} varnish-${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
+        fi
+    fi
+
     aptitude update
     aptitude -y install varnish
 
@@ -30,7 +47,7 @@ function setup_varnish {
     # Clear config file
     > /etc/default/varnish
 
-    # Configure varnish to listen on port 80, with user specified cache size in Options.conf
+    # Configure varnish to listen on port 80, with user specified cache size in options.conf
     cat > /etc/default/varnish <<EOF
 START=no
 NFILES=131072

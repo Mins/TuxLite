@@ -16,7 +16,7 @@ and bloated control panels.
 The following are installed:-
 
 -   Apache2 with mpm\_event or Nginx
--   MySQL
+-   MySQL or MariaDB
 -   PHP-FPM + commonly used PHP modules
 -   Postfix mail server (securely configured to be outgoing only)
 -   Varnish cache (optional)
@@ -30,10 +30,39 @@ kindly refer to these links:-
 
 [Download](http://tuxlite.com/download/)
 
+### Quick Install (Git)
+
+    # Install git and clone TuxLite
+    aptitude install git
+    git clone https://github.com/Mins/TuxLite.git
+    cd TuxLite
+    
+    # Edit options to enter server IP, MySQL password etc.
+    nano options.conf
+    
+    # Make all scripts executable.
+    chmod 700 *.sh
+    chmod 700 options.conf
+    
+    # Install LAMP or LNMP stack.
+    ./install.sh
+    
+    # Add a new Linux user and add domains to the user.
+    adduser johndoe
+    ./domain.sh add johndoe yourdomain.com
+    ./domain.sh add johndoe subdomain.yourdomain.com
+    
+    # Install Adminer or phpMyAdmin
+    ./setup.sh dbgui
+    
+    # Enable/disable public viewing of Adminer/phpMyAdmin
+    ./domain.sh dbgui on
+    ./domain.sh dbgui off
 
 ### Requirements
 
--   A VPS with 80MB RAM or above. 256MB recommended.
+-   Supports Debian 6 and 7, Ubuntu 12.04, 12.10 and 13.04.
+-   A server with at least 80MB RAM. 256MB and above recommended.
 -   Basic Linux knowledge. You will need know how to connect to your
     server remotely.
 -   Basic text editor knowledge. For beginners, learning GNU nano is
@@ -47,11 +76,10 @@ reading the "getting started" tutorials in Linode Library.
 -   TuxLite LAMP stack configures Apache with mpm\_event and PHP with
     fastcgi (PHP-FPM). This gives much higher performance and lower memory
     consumption than the regular LAMP tutorials/guides using mod\_php.
--   100% official distribution packages. You are not at the mercy of the
+-   Uses official distribution packages. You are not at the mercy of the
     script maintainer to keep your servers updated. All installed
     software are tuned, optimized and secured.
--   Extremely minimal resource usage. Fresh install requires only
-    50-60MB RAM.
+-   Minimal resource usage. Fresh install requires only 50-60MB RAM.
 -   Free from unnecessary or custom changes to your server. Everything
     is configured according to Debian/Ubuntu standards.
 -   Automatic virtualhost configuration with log rotation, AWStats
