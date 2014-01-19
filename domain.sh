@@ -153,7 +153,7 @@ server {
         error_page 404 /404.html;
 
         location / {
-            # try_files \$uri \$uri/ /index.php?\$args;
+            try_files \$uri \$uri/ /index.php?\$args;
         }
 
         # Pass PHP scripts to PHP-FPM
@@ -197,7 +197,7 @@ server {
         ssl_prefer_server_ciphers on;
 
         location / {
-            # try_files \$uri \$uri/ /index.php?\$args;
+            try_files \$uri \$uri/ /index.php?\$args;
         }
 
         location ~ \.php$ {
