@@ -311,6 +311,9 @@ EOF
 EOF
         chmod +x hooks/post-receive
         cd - &> /dev/null
+
+        # Set permissions
+        chown -R $DOMAIN_OWNER:$DOMAIN_OWNER $GIT_PATH
         echo -e "\033[35;1mSuccesfully Created git repository \033[0m"
         echo -e "\033[35;1mgit remote add web ssh://$DOMAIN_OWNER@$HOSTNAME_FQDN:$SSHD_PORT/$GIT_PATH \033[0m"
     fi
