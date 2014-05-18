@@ -165,6 +165,21 @@ server {
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
         }
 
+        # Enable browser cache for CSS / JS
+        location ~* \.(?:css|js)$ {
+            expires 30d;
+            add_header Pragma "public";
+            add_header Cache-Control "public";
+            add_header Vary "Accept-Encoding";
+        }
+
+        # Enable browser cache for static files
+        location ~* \.(?:ico|jpg|jpeg|gif|png|bmp|webp|tiff|svg|svgz|pdf|mp3|flac|ogg|mid|midi|wav|mp4|webm|mkv|ogv|wmv|eot|otf|woff|ttf|rss|atom|zip|7z|tgz|gz|rar|bz2|tar|exe|doc|docx|xls|xlsx|ppt|pptx|rtf|odt|ods|odp)$ {
+            expires 1y;
+            add_header Pragma "public";
+            add_header Cache-Control "public";
+        }
+
         # Deny access to hidden files
         location ~ (^|/)\. {
             deny all;
@@ -206,6 +221,21 @@ server {
             include fastcgi_params;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
+        }
+
+        # Enable browser cache for CSS / JS
+        location ~* \.(?:css|js)$ {
+            expires 30d;
+            add_header Pragma "public";
+            add_header Cache-Control "public";
+            add_header Vary "Accept-Encoding";
+        }
+
+        # Enable browser cache for static files
+        location ~* \.(?:ico|jpg|jpeg|gif|png|bmp|webp|tiff|svg|svgz|pdf|mp3|flac|ogg|mid|midi|wav|mp4|webm|mkv|ogv|wmv|eot|otf|woff|ttf|rss|atom|zip|7z|tgz|gz|rar|bz2|tar|exe|doc|docx|xls|xlsx|ppt|pptx|rtf|odt|ods|odp)$ {
+            expires 1y;
+            add_header Pragma "public";
+            add_header Cache-Control "public";
         }
 
         # Deny access to hidden files
