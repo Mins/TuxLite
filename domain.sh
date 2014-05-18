@@ -167,7 +167,7 @@ server {
 
         # Enable browser cache for CSS / JS
         location ~* \.(?:css|js)$ {
-            expires 30d;
+            expires 2d;
             add_header Pragma "public";
             add_header Cache-Control "public";
             add_header Vary "Accept-Encoding";
@@ -175,7 +175,7 @@ server {
 
         # Enable browser cache for static files
         location ~* \.(?:ico|jpg|jpeg|gif|png|bmp|webp|tiff|svg|svgz|pdf|mp3|flac|ogg|mid|midi|wav|mp4|webm|mkv|ogv|wmv|eot|otf|woff|ttf|rss|atom|zip|7z|tgz|gz|rar|bz2|tar|exe|doc|docx|xls|xlsx|ppt|pptx|rtf|odt|ods|odp)$ {
-            expires 1y;
+            expires 5d;
             add_header Pragma "public";
             add_header Cache-Control "public";
         }
@@ -225,7 +225,7 @@ server {
 
         # Enable browser cache for CSS / JS
         location ~* \.(?:css|js)$ {
-            expires 30d;
+            expires 2d;
             add_header Pragma "public";
             add_header Cache-Control "public";
             add_header Vary "Accept-Encoding";
@@ -233,7 +233,7 @@ server {
 
         # Enable browser cache for static files
         location ~* \.(?:ico|jpg|jpeg|gif|png|bmp|webp|tiff|svg|svgz|pdf|mp3|flac|ogg|mid|midi|wav|mp4|webm|mkv|ogv|wmv|eot|otf|woff|ttf|rss|atom|zip|7z|tgz|gz|rar|bz2|tar|exe|doc|docx|xls|xlsx|ppt|pptx|rtf|odt|ods|odp)$ {
-            expires 1y;
+            expires 5d;
             add_header Pragma "public";
             add_header Cache-Control "public";
         }
