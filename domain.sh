@@ -87,10 +87,19 @@ function php_fpm_add_user {
         cp /etc/php5/fpm/pool.d/{www.conf,$DOMAIN_OWNER.conf}
 
         # Change pool user, group and socket to the domain owner
-        sed -i  's/^\[www\]$/\['${DOMAIN_OWNER}'\]/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^\[www\]$/\['${DOMAIN_OWNER}'\]/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
         sed -i 's/^listen =.*/listen = \/var\/run\/php5-fpm-'${DOMAIN_OWNER}'.sock/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
         sed -i 's/^user = www-data$/user = '${DOMAIN_OWNER}'/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
         sed -i 's/^group = www-data$/group = '${DOMAIN_OWNER}'/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^;listen.mode =.*/listen.mode = 0660/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+
+       if [ $USE_NGINX_ORG_REPO = "yes" ]; then
+            sed -i 's/^;listen.owner =.*/listen.owner = nginx/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.group =.*/listen.group = nginx/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+        else
+            sed -i 's/^;listen.owner =.*/listen.owner = www-data/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.group =.*/listen.group = www-data/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+        fi
     fi
 
     service php5-fpm restart
@@ -167,7 +176,7 @@ server {
 
         # Enable browser cache for CSS / JS
         location ~* \.(?:css|js)$ {
-            expires 2d;
+            expires 7d;
             add_header Pragma "public";
             add_header Cache-Control "public";
             add_header Vary "Accept-Encoding";
@@ -175,7 +184,7 @@ server {
 
         # Enable browser cache for static files
         location ~* \.(?:ico|jpg|jpeg|gif|png|bmp|webp|tiff|svg|svgz|pdf|mp3|flac|ogg|mid|midi|wav|mp4|webm|mkv|ogv|wmv|eot|otf|woff|ttf|rss|atom|zip|7z|tgz|gz|rar|bz2|tar|exe|doc|docx|xls|xlsx|ppt|pptx|rtf|odt|ods|odp)$ {
-            expires 5d;
+            expires 7d;
             add_header Pragma "public";
             add_header Cache-Control "public";
         }
@@ -225,7 +234,7 @@ server {
 
         # Enable browser cache for CSS / JS
         location ~* \.(?:css|js)$ {
-            expires 2d;
+            expires 7d;
             add_header Pragma "public";
             add_header Cache-Control "public";
             add_header Vary "Accept-Encoding";
@@ -233,7 +242,7 @@ server {
 
         # Enable browser cache for static files
         location ~* \.(?:ico|jpg|jpeg|gif|png|bmp|webp|tiff|svg|svgz|pdf|mp3|flac|ogg|mid|midi|wav|mp4|webm|mkv|ogv|wmv|eot|otf|woff|ttf|rss|atom|zip|7z|tgz|gz|rar|bz2|tar|exe|doc|docx|xls|xlsx|ppt|pptx|rtf|odt|ods|odp)$ {
-            expires 5d;
+            expires 7d;
             add_header Pragma "public";
             add_header Cache-Control "public";
         }
