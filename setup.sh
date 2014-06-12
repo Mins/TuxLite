@@ -25,7 +25,9 @@ function basic_server_setup {
 
     # Reconfigure sshd - change port and disable root login
     sed -i 's/^Port [0-9]*/Port '${SSHD_PORT}'/' /etc/ssh/sshd_config
-    sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+	if  [ $ROOT_LOGIN = "no" ]; then
+    	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+	fi;
     service ssh reload
 
     # Set hostname and FQDN
