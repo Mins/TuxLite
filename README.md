@@ -16,7 +16,7 @@ and bloated control panels.
 The following are installed:-
 
 -   Apache2 with mpm\_event or Nginx
--   MySQL or MariaDB
+-   MySQL, MariaDB or Percona
 -   PHP-FPM + commonly used PHP modules
 -   Postfix mail server (securely configured to be outgoing only)
 -   Varnish cache (optional)
