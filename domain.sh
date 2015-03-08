@@ -201,7 +201,7 @@ server {
 
 
 server {
-        listen 443;
+        listen 443 ssl spdy;
         server_name www.$DOMAIN $DOMAIN;
         root $DOMAIN_PATH/public_html;
         access_log $DOMAIN_PATH/logs/access.log;
@@ -210,15 +210,7 @@ server {
         index index.php index.html index.htm;
         error_page 404 /404.html;
 
-        ssl on;
-        ssl_certificate /etc/ssl/localcerts/webserver.pem;
-        ssl_certificate_key /etc/ssl/localcerts/webserver.key;
-
-        ssl_session_timeout 5m;
-
-        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-        ssl_ciphers HIGH:!aNULL:!MD5;
-        ssl_prefer_server_ciphers on;
+        include /etc/nginx/ssl.conf;
 
         location / {
             try_files \$uri \$uri/ /index.php?\$args;
