@@ -223,6 +223,21 @@ function install_webserver {
 
         # Change default vhost root directory to /usr/share/nginx/html;
         sed -i 's/\(root \/usr\/share\/nginx\/\).*/\1html;/' /etc/nginx/sites-available/default
+
+        # Create common SSL config file
+        cat > /etc/nginx/ssl.conf <<EOF
+ssl on;
+ssl_certificate /etc/ssl/localcerts/webserver.pem;
+ssl_certificate_key /etc/ssl/localcerts/webserver.key;
+
+ssl_session_cache shared:SSL:10m;
+ssl_session_timeout 10m;
+
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_ciphers HIGH:!aNULL:!MD5;
+ssl_prefer_server_ciphers on;
+EOF
+
     else
         aptitude -y install libapache2-mod-fastcgi apache2-mpm-event
 
