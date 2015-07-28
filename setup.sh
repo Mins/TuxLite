@@ -468,7 +468,7 @@ function install_dbgui {
     if [ $DB_GUI = 1  ]; then
         mkdir /tmp/phpmyadmin
         PMA_VER="`wget -q -O - http://www.phpmyadmin.net/home_page/downloads.php|grep -m 1 '<h2>phpMyAdmin'|sed -r 's/^[^3-9]*([0-9.]*).*/\1/'`"
-        wget -O - "http://sourceforge.net/projects/phpmyadmin/files/phpMyAdmin/${PMA_VER}/phpMyAdmin-${PMA_VER}-all-languages.tar.gz" | tar zxf - -C /tmp/phpmyadmin
+        wget -O - "https://files.phpmyadmin.net/phpMyAdmin/${PMA_VER}/phpMyAdmin-${PMA_VER}-all-languages.tar.gz" | tar zxf - -C /tmp/phpmyadmin
 
         # Check exit status to see if download is successful
         if [ $? = 0  ]; then
