@@ -83,26 +83,26 @@ function reload_webserver {
 function php_fpm_add_user {
 
     # Copy over FPM template for this Linux user if it doesn't exist
-    if [ ! -e /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf ]; then
-        cp /etc/php5/fpm/pool.d/{www.conf,$DOMAIN_OWNER.conf}
+    if [ ! -e /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf ]; then
+        cp /etc/php/7.0/fpm/pool.d/{www.conf,$DOMAIN_OWNER.conf}
 
         # Change pool user, group and socket to the domain owner
-        sed -i 's/^\[www\]$/\['${DOMAIN_OWNER}'\]/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^listen =.*/listen = \/var\/run\/php5-fpm-'${DOMAIN_OWNER}'.sock/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^user = www-data$/user = '${DOMAIN_OWNER}'/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^group = www-data$/group = '${DOMAIN_OWNER}'/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^;listen.mode =.*/listen.mode = 0660/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^\[www\]$/\['${DOMAIN_OWNER}'\]/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-'${DOMAIN_OWNER}'.sock/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^user = www-data$/user = '${DOMAIN_OWNER}'/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^group = www-data$/group = '${DOMAIN_OWNER}'/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^;listen.mode =.*/listen.mode = 0660/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
 
        if [ $USE_NGINX_ORG_REPO = "yes" ]; then
-            sed -i 's/^;listen.owner =.*/listen.owner = nginx/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
-            sed -i 's/^;listen.group =.*/listen.group = nginx/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.owner =.*/listen.owner = nginx/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.group =.*/listen.group = nginx/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
         else
-            sed -i 's/^;listen.owner =.*/listen.owner = www-data/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
-            sed -i 's/^;listen.group =.*/listen.group = www-data/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.owner =.*/listen.owner = www-data/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.group =.*/listen.group = www-data/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
         fi
     fi
 
-    service php5-fpm restart
+    service php7.0-fpm restart
 
 } # End function php_fpm_add_user
 
@@ -168,7 +168,7 @@ server {
         # Pass PHP scripts to PHP-FPM
         location ~ \.php$ {
             try_files \$uri =403;
-            fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
+            fastcgi_pass unix:/var/run/php-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
@@ -218,7 +218,7 @@ server {
 
         location ~ \.php$ {
             try_files \$uri =403;
-            fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
+            fastcgi_pass unix:/var/run/php-fpm-$DOMAIN_OWNER.sock;
             include fastcgi_params;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
@@ -260,8 +260,8 @@ EOF
     ErrorLog $DOMAIN_PATH/logs/error.log
     CustomLog $DOMAIN_PATH/logs/access.log combined
 
-    FastCGIExternalServer $DOMAIN_PATH/php5-fpm -pass-header Authorization -idle-timeout 120 -socket /var/run/php5-fpm-$DOMAIN_OWNER.sock
-    Alias /php5-fcgi $DOMAIN_PATH
+    FastCGIExternalServer $DOMAIN_PATH/php-fpm -pass-header Authorization -idle-timeout 120 -socket /var/run/php-fpm-$DOMAIN_OWNER.sock
+    Alias /php-fcgi $DOMAIN_PATH
 
 </VirtualHost>
 
@@ -278,7 +278,7 @@ EOF
 
     # With PHP5-FPM, you need to create another PHP5-FPM pool for SSL connections
     # Adding the same fastcgiexternalserver line here will result in an error
-    Alias /php5-fcgi $DOMAIN_PATH
+    Alias /php-fcgi $DOMAIN_PATH
 
     SSLEngine on
     SSLCertificateFile    /etc/ssl/localcerts/webserver.pem
