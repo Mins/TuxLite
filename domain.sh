@@ -88,7 +88,7 @@ function php_fpm_add_user {
 
         # Change pool user, group and socket to the domain owner
         sed -i 's/^\[www\]$/\['${DOMAIN_OWNER}'\]/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-'${DOMAIN_OWNER}'.sock/' /etc/php5/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-'${DOMAIN_OWNER}'.sock/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
         sed -i 's/^user = www-data$/user = '${DOMAIN_OWNER}'/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
         sed -i 's/^group = www-data$/group = '${DOMAIN_OWNER}'/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
         sed -i 's/^;listen.mode =.*/listen.mode = 0660/' /etc/php/7.0/fpm/pool.d/$DOMAIN_OWNER.conf
