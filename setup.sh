@@ -239,7 +239,7 @@ ssl_prefer_server_ciphers on;
 EOF
 
     else
-        aptitude -y install libapache2-mod-fastcgi apache2-mpm-event
+        aptitude -y install libapache2-mod-fcgid apache2-mpm-event
 
         a2dismod php4
         a2dismod php5
