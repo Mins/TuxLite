@@ -1,6 +1,6 @@
 ###############################################################################################
 # TuxLite - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
-# Nginx/Apache + PHP5-FPM + MySQL                                                             #
+# Nginx/Apache + PHP7.0-FPM + MySQL                                                             #
 # Stack is optimized/tuned for a 256MB server                                                 #
 # Email your questions to s@tuxlite.com                                                       #
 ###############################################################################################
@@ -107,7 +107,7 @@ EOF
 
     ## Third party mirrors ##
 
-    # Need to add Dotdeb repo for installing PHP5-FPM when using Debian 6.0 (squeeze)
+    # Need to add Dotdeb repo for installing PHP7-FPM when using Debian 6.0 (squeeze)
     if  [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
         echo -e "\033[35;1mEnabling DotDeb repo for Debian 6.0 Squeeze. \033[0m"
         cat > /etc/apt/sources.list.d/dotdeb.list <<EOF
@@ -243,6 +243,8 @@ EOF
 
         a2dismod php4
         a2dismod php5
+	a2dismod php7
+	a2dismod php
         a2dismod fcgid
         a2enmod actions
         a2enmod fastcgi
@@ -333,7 +335,7 @@ function optimize_stack {
         cat ./config/nginx.conf > /etc/nginx/nginx.conf
 
         # Change nginx user from  "www-data" to "nginx". Not really necessary
-        # because "www-data" user is created when installing PHP5-FPM
+        # because "www-data" user is created when installing PHP-FPM
         if  [ $USE_NGINX_ORG_REPO = "yes" ]; then
             sed -i 's/^user\s*www-data/user nginx/' /etc/nginx/nginx.conf
         fi
@@ -368,8 +370,8 @@ function optimize_stack {
         sed -i 's/^[^#]/#&/' /etc/cron.d/awstats
     fi
 
-    service php5-fpm stop
-    php_fpm_conf="/etc/php5/fpm/pool.d/www.conf"
+    service php7.0-fpm stop
+    php_fpm_conf="/etc/php/7.0/fpm/pool.d/www.conf"
     # Limit FPM processes
     sed -i 's/^pm.max_children.*/pm.max_children = '${FPM_MAX_CHILDREN}'/' $php_fpm_conf
     sed -i 's/^pm.start_servers.*/pm.start_servers = '${FPM_START_SERVERS}'/' $php_fpm_conf
@@ -377,9 +379,9 @@ function optimize_stack {
     sed -i 's/^pm.max_spare_servers.*/pm.max_spare_servers = '${FPM_MAX_SPARE_SERVERS}'/' $php_fpm_conf
     sed -i 's/\;pm.max_requests.*/pm.max_requests = '${FPM_MAX_REQUESTS}'/' $php_fpm_conf
     # Change to socket connection for better performance
-    sed -i 's/^listen =.*/listen = \/var\/run\/php5-fpm-www-data.sock/' $php_fpm_conf
+    sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-www-data.sock/' $php_fpm_conf
 
-    php_ini_dir="/etc/php5/fpm/php.ini"
+    php_ini_dir="/etc/php/7.0/fpm/php.ini"
     # Tweak php.ini based on input in options.conf
     sed -i 's/^max_execution_time.*/max_execution_time = '${PHP_MAX_EXECUTION_TIME}'/' $php_ini_dir
     sed -i 's/^memory_limit.*/memory_limit = '${PHP_MEMORY_LIMIT}'/' $php_ini_dir
@@ -434,9 +436,9 @@ function optimize_stack {
 
     restart_webserver
     sleep 2
-    service php5-fpm start
+    service php7.0-fpm start
     sleep 2
-    service php5-fpm restart
+    service php7.0-fpm restart
     echo -e "\033[35;1m Optimize complete! \033[0m"
 
 } # End function optimize
@@ -666,7 +668,7 @@ install)
     install_extras
     install_postfix
     restart_webserver
-    service php5-fpm restart
+    service php7.0-fpm restart
     echo -e "\033[35;1m Webserver + PHP-FPM + MySQL install complete! \033[0m"
     ;;
 optimize)
