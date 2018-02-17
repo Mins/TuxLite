@@ -1,3 +1,5 @@
+Modified to work with DEBIAN 9 Stretch
+
 ### TuxLite Readme
 
 TuxLite is a free collection of shell scripts for rapid deployment of
@@ -34,7 +36,7 @@ kindly refer to these links:-
 
     # Install git and clone TuxLite
     aptitude install git
-    git clone https://github.com/Mins/TuxLite.git
+    git clone https://github.com/Almazick/TuxLite
     cd TuxLite
     
     # Edit options to enter server IP, MySQL password etc.
