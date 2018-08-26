@@ -152,7 +152,7 @@ function cron_backupdb {
 
     # If cron entry already exists, abort
     if [ $tmp -gt 0 ]; then
-    	echo -e "\033[35;1mERROR: Database backup already exists, please remove it from crontab -e before entering again.\033[0m"
+        echo -e "\033[35;1mERROR: Database backup already exists, please remove it from crontab -e before entering again.\033[0m"
         exit 1
     fi
 

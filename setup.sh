@@ -12,7 +12,7 @@ DISTRO=`lsb_release -i -s`
 # Distribution's release. Squeeze, wheezy, precise etc
 RELEASE=`lsb_release -c -s`
 if  [ $DISTRO = "" ]; then
-    echo -e "\033[35;1mPlease run 'aptitude -y install lsb-release' before using this script.\033[0m"
+    echo -e "\033[35;1mPlease run 'apt-get -y install lsb-release' before using this script.\033[0m"
     exit 1
 fi
 
@@ -21,13 +21,13 @@ fi
 
 function basic_server_setup {
 
-    aptitude update && aptitude -y safe-upgrade
+    apt-get update && apt-get -y safe-upgrade
 
     # Reconfigure sshd - change port and disable root login
     sed -i 's/^Port [0-9]*/Port '${SSHD_PORT}'/' /etc/ssh/sshd_config
-	if  [ $ROOT_LOGIN = "no" ]; then
-    	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-	fi;
+    if  [ $ROOT_LOGIN = "no" ]; then
+        sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+    fi;
     service ssh reload
 
     # Set hostname and FQDN
@@ -47,12 +47,12 @@ function basic_server_setup {
     sed -i 's/^net.ipv4.conf.all.accept_source_route = 1/net.ipv4.conf.all.accept_source_route = 0/' /etc/sysctl.conf
     sed -i 's/^#net.ipv6.conf.all.accept_source_route = 0/net.ipv6.conf.all.accept_source_route = 0/' /etc/sysctl.conf
     sed -i 's/^net.ipv6.conf.all.accept_source_route = 1/net.ipv6.conf.all.accept_source_route = 0/' /etc/sysctl.conf
-	if  [ $ROOT_LOGIN = "no" ]; then
-	    echo -e "\033[35;1m Root login disabled, SSH port set to $SSHD_PORT. Hostname set to $HOSTNAME and FQDN to $HOSTNAME_FQDN. \033[0m"
-	    echo -e "\033[35;1m Remember to create a normal user account for login or you will be locked out from your box! \033[0m"
-	else
-		echo -e "\033[35;1m Root login active, SSH port set to $SSHD_PORT. Hostname set to $HOSTNAME and FQDN to $HOSTNAME_FQDN. \033[0m"
-	fi
+    if  [ $ROOT_LOGIN = "no" ]; then
+        echo -e "\033[35;1m Root login disabled, SSH port set to $SSHD_PORT. Hostname set to $HOSTNAME and FQDN to $HOSTNAME_FQDN. \033[0m"
+        echo -e "\033[35;1m Remember to create a normal user account for login or you will be locked out from your box! \033[0m"
+    else
+        echo -e "\033[35;1m Root login active, SSH port set to $SSHD_PORT. Hostname set to $HOSTNAME and FQDN to $HOSTNAME_FQDN. \033[0m"
+    fi
 
 } # End function basic_server_setup
 
@@ -195,7 +195,7 @@ EOF
     fi # End if user wants to install Percona
 
 
-    aptitude update
+    apt-get update
     echo -e "\033[35;1m Successfully configured /etc/apt/sources.list \033[0m"
 
 } # End function setup_apt
@@ -205,7 +205,7 @@ function install_webserver {
 
     # From options.conf, nginx = 1, apache = 2
     if [ $WEBSERVER = 1 ]; then
-        aptitude -y install nginx
+        apt-get -y install nginx
 
         if  [ $USE_NGINX_ORG_REPO = "yes" ]; then
             mkdir /etc/nginx/sites-available
@@ -239,7 +239,7 @@ ssl_prefer_server_ciphers on;
 EOF
 
     else
-        aptitude -y install libapache2-mod-fastcgi apache2-mpm-event
+        apt-get -y install libapache2-mod-fastcgi apache2-mpm-event
 
         a2dismod php4
         a2dismod php5
@@ -261,8 +261,8 @@ EOF
 function install_php {
 
     # Install PHP packages and extensions specified in options.conf
-    aptitude -y install $PHP_BASE
-    aptitude -y install $PHP_EXTRAS
+    apt-get -y install $PHP_BASE
+    apt-get -y install $PHP_EXTRAS
 
 } # End function install_php
 
@@ -270,11 +270,11 @@ function install_php {
 function install_extras {
 
     if [ $AWSTATS_ENABLE = 'yes' ]; then
-        aptitude -y install awstats
+        apt-get -y install awstats
     fi
 
     # Install any other packages specified in options.conf
-    aptitude -y install $MISC_PACKAGES
+    apt-get -y install $MISC_PACKAGES
 
 } # End function install_extras
 
@@ -290,17 +290,17 @@ function install_mysql {
     fi
 
     if [ $DBSERVER = 2 ]; then
-        aptitude -y install mariadb-server mariadb-client
+        apt-get -y install mariadb-server mariadb-client
     elif [ $DBSERVER = 3 ]; then
-        aptitude -y install percona-server-server-5.6 percona-server-client-5.6
+        apt-get -y install percona-server-server-5.6 percona-server-client-5.6
     else
-        aptitude -y install mysql-server mysql-client
+        apt-get -y install mysql-server mysql-client
     fi
 
     echo -e "\033[35;1m Securing MySQL... \033[0m"
     sleep 5
 
-    aptitude -y install expect
+    apt-get -y install expect
 
     SECURE_MYSQL=$(expect -c "
         set timeout 10
@@ -321,7 +321,7 @@ function install_mysql {
     ")
 
     echo "$SECURE_MYSQL"
-    aptitude -y purge expect
+    apt-get -y purge expect
 
 } # End function install_mysql
 
@@ -394,7 +394,7 @@ function optimize_stack {
     echo -e "\033[35;1m Generating self signed SSL cert... \033[0m"
     mkdir /etc/ssl/localcerts
 
-    aptitude -y install expect
+    apt-get -y install expect
 
     GENERATE_CERT=$(expect -c "
         set timeout 10
@@ -417,7 +417,7 @@ function optimize_stack {
     ")
 
     echo "$GENERATE_CERT"
-    aptitude -y purge expect
+    apt-get -y purge expect
 
     # Tweak my.cnf. Commented out. Best to let users configure my.cnf on their own
     #cp /etc/mysql/{my.cnf,my.cnf.bak}
@@ -448,7 +448,7 @@ function install_postfix {
     echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
     echo "postfix postfix/mailname string $HOSTNAME_FQDN" | debconf-set-selections
     echo "postfix postfix/destinations string localhost.localdomain, localhost" | debconf-set-selections
-    aptitude -y install postfix
+    apt-get -y install postfix
 
     # Allow mail delivery from localhost only
     /usr/sbin/postconf -e "inet_interfaces = loopback-only"

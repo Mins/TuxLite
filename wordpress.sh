@@ -96,7 +96,7 @@ function find_available_domains {
     find $FIND_PATH -maxdepth 0 &> /dev/null
 
     # First check to see if there are domains available. Suppress exit status.
-    if [ $? -eq 0 ]; then 
+    if [ $? -eq 0 ]; then
         find $FIND_PATH -maxdepth 0 > /tmp/domain.txt
         DOMAINS_AVAILABLE=`cat /tmp/domain.txt | wc -l`
     fi
@@ -136,12 +136,12 @@ function generate_random_pass {
     MATRIX="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
     while [ "${n:=1}" -le "$LENGTH" ]; do
-    	PASS="$PASS${MATRIX:$(($RANDOM%${#MATRIX})):1}"
-    	let n+=1
+        PASS="$PASS${MATRIX:$(($RANDOM%${#MATRIX})):1}"
+        let n+=1
     done
 
     DB_USER_PASS=$PASS
-	
+
 } # End function generate_random_pass
 
 
@@ -252,7 +252,7 @@ if [[ "$DECISION" = [yY] ]]; then
     get_latest_wordpress
     echo "Done."
 
-	echo "Setting up MySQL..."
+    echo "Setting up MySQL..."
     add_mysqldb_and_user
     echo "Done."
     echo ""
