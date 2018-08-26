@@ -33,7 +33,7 @@ kindly refer to these links:-
 ### Quick Install (Git)
 
     # Install git and clone TuxLite
-    aptitude install git
+    apt-get -y install git
     git clone https://github.com/Mins/TuxLite.git
     cd TuxLite
     
