@@ -168,7 +168,7 @@ server {
         # Pass PHP scripts to PHP-FPM
         location ~ \.php$ {
             try_files \$uri =403;
-            fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
+            fastcgi_pass unix:/var/run/php5-fpm-www-data.sock;
             include fastcgi_params;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
@@ -218,7 +218,7 @@ server {
 
         location ~ \.php$ {
             try_files \$uri =403;
-            fastcgi_pass unix:/var/run/php5-fpm-$DOMAIN_OWNER.sock;
+            fastcgi_pass unix:/var/run/php5-fpm-www-data.sock;
             include fastcgi_params;
             fastcgi_index index.php;
             fastcgi_param SCRIPT_FILENAME  \$document_root\$fastcgi_script_name;
