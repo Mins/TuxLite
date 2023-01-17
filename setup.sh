@@ -146,7 +146,7 @@ EOF
 
 
     # If user wants to install MariaDB instead of MySQL
-    if [ $DBSERVER = 2 ]; then
+ #   if [ $DBSERVER = 2 ]; then
  #       echo -e "\033[35;1mEnabling MariaDB.org repo for $DISTRO $RELEASE. \033[0m"
  #       cat > /etc/apt/sources.list.d/MariaDB.list <<EOF
 # http://mariadb.org/mariadb/repositories/
@@ -167,7 +167,7 @@ EOF
 
         # Import MariaDB signing key
     #    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
-    fi # End if user wants to install MariaDB
+ #   fi # End if user wants to install MariaDB
 
     # If user wants to install Percona instead of MySQL
     if [ $DBSERVER = 3 ]; then
