@@ -147,26 +147,26 @@ EOF
 
     # If user wants to install MariaDB instead of MySQL
     if [ $DBSERVER = 2 ]; then
-        echo -e "\033[35;1mEnabling MariaDB.org repo for $DISTRO $RELEASE. \033[0m"
-        cat > /etc/apt/sources.list.d/MariaDB.list <<EOF
+ #       echo -e "\033[35;1mEnabling MariaDB.org repo for $DISTRO $RELEASE. \033[0m"
+ #       cat > /etc/apt/sources.list.d/MariaDB.list <<EOF
 # http://mariadb.org/mariadb/repositories/
-deb $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
-deb-src $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
+#deb $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
+#deb-src $MARIADB_REPO`echo $DISTRO | tr [:upper:] [:lower:]` $RELEASE main
 
-EOF
+#EOF
 
         # Set APT pinning for MariaDB packages
-        cat > /etc/apt/preferences.d/MariaDB <<EOF
+#        cat > /etc/apt/preferences.d/MariaDB <<EOF
 # Prevent potential conflict with main repo that causes
 # MariaDB to be uninstalled when upgrading mysql-common
-Package: *
-Pin: origin $MARIADB_REPO_HOSTNAME
-Pin-Priority: 1000
+#Package: *
+#Pin: origin $MARIADB_REPO_HOSTNAME
+#Pin-Priority: 1000
 
-EOF
+#EOF
 
         # Import MariaDB signing key
-        apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+    #    apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
     fi # End if user wants to install MariaDB
 
     # If user wants to install Percona instead of MySQL
