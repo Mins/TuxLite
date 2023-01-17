@@ -1,4 +1,4 @@
-Modified to work with DEBIAN 9 Stretch
+Modified to work with DEBIAN 11
 
 ### TuxLite Readme
 
