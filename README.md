@@ -1,4 +1,4 @@
-Modified to work with DEBIAN 11
+Modified to work with DEBIAN 11 bullseye
 
 ### TuxLite Readme
 

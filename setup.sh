@@ -1,6 +1,6 @@
 ###############################################################################################
 # TuxLite - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
-# Nginx/Apache + PHP7.0-FPM + MySQL                                                             #
+# Nginx/Apache + php7.4-fpm + MySQL                                                             #
 # Stack is optimized/tuned for a 256MB server                                                 #
 # Email your questions to s@tuxlite.com                                                       #
 ###############################################################################################
@@ -12,7 +12,7 @@ DISTRO=`lsb_release -i -s`
 # Distribution's release. Squeeze, wheezy, precise etc
 RELEASE=`lsb_release -c -s`
 if  [ $DISTRO = "" ]; then
-    echo -e "\033[35;1mPlease run 'aptitude -y install lsb-release' before using this script.\033[0m"
+    echo -e "\033[35;1mPlease run 'apt-get -y install lsb-release' before using this script.\033[0m"
     exit 1
 fi
 
@@ -21,7 +21,7 @@ fi
 
 function basic_server_setup {
 
-    aptitude update && aptitude -y safe-upgrade
+    apt-get update && apt-get -y safe-upgrade
 
     # Reconfigure sshd - change port and disable root login
     sed -i 's/^Port [0-9]*/Port '${SSHD_PORT}'/' /etc/ssh/sshd_config
@@ -107,7 +107,7 @@ EOF
 
     ## Third party mirrors ##
 
-    # Need to add Dotdeb repo for installing PHP7-FPM when using Debian 6.0 (squeeze)
+    # Need to add Dotdeb repo for installing PHP7-FPM when using Debian 11
     if  [ $DISTRO = "Debian" ] && [ $RELEASE = "squeeze" ]; then
         echo -e "\033[35;1mEnabling DotDeb repo for Debian 6.0 Squeeze. \033[0m"
         cat > /etc/apt/sources.list.d/dotdeb.list <<EOF
@@ -195,7 +195,7 @@ EOF
     fi # End if user wants to install Percona
 
 
-    aptitude update
+    apt-get update
     echo -e "\033[35;1m Successfully configured /etc/apt/sources.list \033[0m"
 
 } # End function setup_apt
@@ -205,7 +205,7 @@ function install_webserver {
 
     # From options.conf, nginx = 1, apache = 2
     if [ $WEBSERVER = 1 ]; then
-        aptitude -y install nginx
+        apt-get -y install nginx
 
         if  [ $USE_NGINX_ORG_REPO = "yes" ]; then
             mkdir /etc/nginx/sites-available
@@ -239,7 +239,7 @@ ssl_prefer_server_ciphers on;
 EOF
 
     else
-        aptitude -y install libapache2-mod-fcgid apache2-mpm-event
+        apt-get -y install libapache2-mod-fcgid apache2-mpm-event
 
         a2dismod php4
         a2dismod php5
@@ -263,8 +263,8 @@ EOF
 function install_php {
 
     # Install PHP packages and extensions specified in options.conf
-    aptitude -y install $PHP_BASE
-    aptitude -y install $PHP_EXTRAS
+    apt-get -y install $PHP_BASE
+    apt-get -y install $PHP_EXTRAS
 
 } # End function install_php
 
@@ -272,11 +272,11 @@ function install_php {
 function install_extras {
 
     if [ $AWSTATS_ENABLE = 'yes' ]; then
-        aptitude -y install awstats
+        apt-get -y install awstats
     fi
 
     # Install any other packages specified in options.conf
-    aptitude -y install $MISC_PACKAGES
+    apt-get -y install $MISC_PACKAGES
 
 } # End function install_extras
 
@@ -292,17 +292,17 @@ function install_mysql {
     fi
 
     if [ $DBSERVER = 2 ]; then
-        aptitude -y install mariadb-server mariadb-client
+        apt-get -y install mariadb-server mariadb-client
     elif [ $DBSERVER = 3 ]; then
-        aptitude -y install percona-server-server-5.6 percona-server-client-5.6
+        apt-get -y install percona-server-server-5.6 percona-server-client-5.6
     else
-        aptitude -y install mysql-server mysql-client
+        apt-get -y install mysql-server mysql-client
     fi
 
     echo -e "\033[35;1m Securing MySQL... \033[0m"
     sleep 5
 
-    aptitude -y install expect
+    apt-get -y install expect
 
     SECURE_MYSQL=$(expect -c "
         set timeout 10
@@ -323,7 +323,7 @@ function install_mysql {
     ")
 
     echo "$SECURE_MYSQL"
-    aptitude -y purge expect
+    apt-get -y purge expect
 
 } # End function install_mysql
 
@@ -370,8 +370,8 @@ function optimize_stack {
         sed -i 's/^[^#]/#&/' /etc/cron.d/awstats
     fi
 
-    service php7.0-fpm stop
-    php_fpm_conf="/etc/php/7.0/fpm/pool.d/www.conf"
+    service php7.4-fpm stop
+    php_fpm_conf="/etc/php/7.4/fpm/pool.d/www.conf"
     # Limit FPM processes
     sed -i 's/^pm.max_children.*/pm.max_children = '${FPM_MAX_CHILDREN}'/' $php_fpm_conf
     sed -i 's/^pm.start_servers.*/pm.start_servers = '${FPM_START_SERVERS}'/' $php_fpm_conf
@@ -381,7 +381,7 @@ function optimize_stack {
     # Change to socket connection for better performance
     sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-www-data.sock/' $php_fpm_conf
 
-    php_ini_dir="/etc/php/7.0/fpm/php.ini"
+    php_ini_dir="/etc/php/7.4/fpm/php.ini"
     # Tweak php.ini based on input in options.conf
     sed -i 's/^max_execution_time.*/max_execution_time = '${PHP_MAX_EXECUTION_TIME}'/' $php_ini_dir
     sed -i 's/^memory_limit.*/memory_limit = '${PHP_MEMORY_LIMIT}'/' $php_ini_dir
@@ -396,7 +396,7 @@ function optimize_stack {
     echo -e "\033[35;1m Generating self signed SSL cert... \033[0m"
     mkdir /etc/ssl/localcerts
 
-    aptitude -y install expect
+    apt-get -y install expect
 
     GENERATE_CERT=$(expect -c "
         set timeout 10
@@ -419,7 +419,7 @@ function optimize_stack {
     ")
 
     echo "$GENERATE_CERT"
-    aptitude -y purge expect
+    apt-get -y purge expect
 
     # Tweak my.cnf. Commented out. Best to let users configure my.cnf on their own
     #cp /etc/mysql/{my.cnf,my.cnf.bak}
@@ -436,9 +436,9 @@ function optimize_stack {
 
     restart_webserver
     sleep 2
-    service php7.0-fpm start
+    service php7.4-fpm start
     sleep 2
-    service php7.0-fpm restart
+    service php7.4-fpm restart
     echo -e "\033[35;1m Optimize complete! \033[0m"
 
 } # End function optimize
@@ -450,7 +450,7 @@ function install_postfix {
     echo "postfix postfix/main_mailer_type select Internet Site" | debconf-set-selections
     echo "postfix postfix/mailname string $HOSTNAME_FQDN" | debconf-set-selections
     echo "postfix postfix/destinations string localhost.localdomain, localhost" | debconf-set-selections
-    aptitude -y install postfix
+    apt-get -y install postfix
 
     # Allow mail delivery from localhost only
     /usr/sbin/postconf -e "inet_interfaces = loopback-only"
@@ -628,9 +628,9 @@ if [ ! -n "$1" ]; then
     echo -ne "\033[36m basic\033[0m"
     echo     " - Disable root SSH logins, change SSH port and set hostname."
 
-    echo -n "$0"
-    echo -ne "\033[36m install\033[0m"
-    echo     " - Installs LNMP or LAMP stack. Also installs Postfix MTA."
+#    echo -n "$0"
+#    echo -ne "\033[36m install\033[0m"
+#    echo     " - Installs LNMP or LAMP stack. Also installs Postfix MTA."
 
     echo -n "$0"
     echo -ne "\033[36m optimize\033[0m"
@@ -666,9 +666,9 @@ install)
     install_mysql
     install_php
     install_extras
-    install_postfix
+#    install_postfix
     restart_webserver
-    service php7.0-fpm restart
+    service php7.4-fpm restart
     echo -e "\033[35;1m Webserver + PHP-FPM + MySQL install complete! \033[0m"
     ;;
 optimize)
