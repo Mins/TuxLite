@@ -502,7 +502,7 @@ function install_dbgui {
         rm -rf /usr/local/share/adminer/*
         wget http://www.adminer.org/latest.php
         if [ $? = 0  ]; then
-            mv adminer*.php index.php
+            mv latest.php index.php
             echo -e "\033[35;1m Adminer installed. \033[0m"
         else
             echo -e "\033[35;1mInstall/upgrade failed. Perhaps http://adminer.org is down. Try again later.\033[0m"
