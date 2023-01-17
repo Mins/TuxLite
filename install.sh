@@ -8,7 +8,7 @@ service apache2 stop
 service sendmail stop
 service bind9 stop
 service nscd stop
-apt-get -y purge nscd bind9 sendmail apache2 apache2.2-common 
+apt-get -y purge nscd bind9 apache2 apache2.2-common 
 
 echo ""
 echo "Configuring /etc/apt/sources.list."
