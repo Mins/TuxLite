@@ -27,9 +27,6 @@ For more detailed explanation on the installation, usage and script features,
 kindly refer to these links:-
 
 
-[Script features](http://tuxlite.com/script-details/)
-
-
 ### Quick Install (Git)
 
     # Install git and clone TuxLite
