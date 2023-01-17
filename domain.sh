@@ -110,7 +110,8 @@ function php_fpm_add_user {
 function add_domain {
 
     # Create public_html and log directories for domain
-    mkdir -p $DOMAIN_PATH/{logs,public_html}
+    rm /etc/nginx/sites-enabled/default
+	mkdir -p $DOMAIN_PATH/{logs,public_html}
     touch $DOMAIN_PATH/logs/{access.log,error.log}
 
     cat > $DOMAIN_PATH/public_html/index.html <<EOF
