@@ -20,7 +20,7 @@ The following are installed:-
 -   Apache2 with mpm\_event or Nginx
 -   MySQL, MariaDB or Percona
 -   PHP-FPM + commonly used PHP modules
--   Postfix mail server (securely configured to be outgoing only)
+removed   Postfix mail server (securely configured to be outgoing only)
 -   Varnish cache (optional)
 
 For more detailed explanation on the installation, usage and script features, 
