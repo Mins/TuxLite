@@ -241,9 +241,9 @@ EOF
     else
         apt-get -y install libapache2-mod-fcgid apache2-mpm-event
 
-        a2dismod php4
+        a2dismod php7
         a2dismod php5
-	a2dismod php7
+	a2dismod php7.4
 	a2dismod php
         a2dismod fcgid
         a2enmod actions
