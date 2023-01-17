@@ -83,26 +83,26 @@ function reload_webserver {
 function php_fpm_add_user {
 
     # Copy over FPM template for this Linux user if it doesn't exist
-    if [ ! -e /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf ]; then
-        cp /etc/php/7.4/fpm/pool.d/{www.conf,$DOMAIN_OWNER.conf}
+    if [ ! -e /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf ]; then
+        cp /etc/php/8.2/fpm/pool.d/{www.conf,$DOMAIN_OWNER.conf}
 
         # Change pool user, group and socket to the domain owner
-        sed -i 's/^\[www\]$/\['${DOMAIN_OWNER}'\]/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-'${DOMAIN_OWNER}'.sock/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^user = www-data$/user = '${DOMAIN_OWNER}'/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^group = www-data$/group = '${DOMAIN_OWNER}'/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
-        sed -i 's/^;listen.mode =.*/listen.mode = 0660/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^\[www\]$/\['${DOMAIN_OWNER}'\]/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-'${DOMAIN_OWNER}'.sock/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^user = www-data$/user = '${DOMAIN_OWNER}'/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^group = www-data$/group = '${DOMAIN_OWNER}'/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
+        sed -i 's/^;listen.mode =.*/listen.mode = 0660/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
 
        if [ $USE_NGINX_ORG_REPO = "yes" ]; then
-            sed -i 's/^;listen.owner =.*/listen.owner = nginx/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
-            sed -i 's/^;listen.group =.*/listen.group = nginx/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.owner =.*/listen.owner = nginx/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.group =.*/listen.group = nginx/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
         else
-            sed -i 's/^;listen.owner =.*/listen.owner = www-data/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
-            sed -i 's/^;listen.group =.*/listen.group = www-data/' /etc/php/7.4/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.owner =.*/listen.owner = www-data/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
+            sed -i 's/^;listen.group =.*/listen.group = www-data/' /etc/php/8.2/fpm/pool.d/$DOMAIN_OWNER.conf
         fi
     fi
 
-    service php7.4-fpm restart
+    service php8.2-fpm restart
 
 } # End function php_fpm_add_user
 

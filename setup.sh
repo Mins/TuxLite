@@ -1,6 +1,6 @@
 ###############################################################################################
 # TuxLite - Complete LNMP/LAMP setup script for Debian/Ubuntu                                 #
-# Nginx/Apache + php7.4-fpm + MySQL                                                             #
+# Nginx/Apache + php8.2-fpm + MySQL                                                             #
 # Stack is optimized/tuned for a 256MB server                                                 #
 # Email your questions to s@tuxlite.com                                                       #
 ###############################################################################################
@@ -243,7 +243,7 @@ EOF
 
         a2dismod php7
         a2dismod php5
-	a2dismod php7.4
+	a2dismod php8.2
 	a2dismod php
         a2dismod fcgid
         a2enmod actions
@@ -370,8 +370,8 @@ function optimize_stack {
         sed -i 's/^[^#]/#&/' /etc/cron.d/awstats
     fi
 
-    service php7.4-fpm stop
-    php_fpm_conf="/etc/php/7.4/fpm/pool.d/www.conf"
+    service php8.2-fpm stop
+    php_fpm_conf="/etc/php/8.2/fpm/pool.d/www.conf"
     # Limit FPM processes
     sed -i 's/^pm.max_children.*/pm.max_children = '${FPM_MAX_CHILDREN}'/' $php_fpm_conf
     sed -i 's/^pm.start_servers.*/pm.start_servers = '${FPM_START_SERVERS}'/' $php_fpm_conf
@@ -381,7 +381,7 @@ function optimize_stack {
     # Change to socket connection for better performance
     sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-www-data.sock/' $php_fpm_conf
 
-    php_ini_dir="/etc/php/7.4/fpm/php.ini"
+    php_ini_dir="/etc/php/8.2/fpm/php.ini"
     # Tweak php.ini based on input in options.conf
     sed -i 's/^max_execution_time.*/max_execution_time = '${PHP_MAX_EXECUTION_TIME}'/' $php_ini_dir
     sed -i 's/^memory_limit.*/memory_limit = '${PHP_MEMORY_LIMIT}'/' $php_ini_dir
@@ -436,9 +436,9 @@ function optimize_stack {
 
     restart_webserver
     sleep 2
-    service php7.4-fpm start
+    service php8.2-fpm start
     sleep 2
-    service php7.4-fpm restart
+    service php8.2-fpm restart
     echo -e "\033[35;1m Optimize complete! \033[0m"
 
 } # End function optimize
@@ -668,7 +668,7 @@ install)
     install_extras
 #    install_postfix
     restart_webserver
-    service php7.4-fpm restart
+    service php8.2-fpm restart
     echo -e "\033[35;1m Webserver + PHP-FPM + MySQL install complete! \033[0m"
     ;;
 optimize)

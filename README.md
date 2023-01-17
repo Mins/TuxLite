@@ -1,4 +1,4 @@
-Modified to work with DEBIAN 11 bullseye and PHP 7.4
+Modified to work with DEBIAN 11 bullseye and PHP 8.2
 
 ### TuxLite Readme
 
@@ -57,6 +57,11 @@ kindly refer to these links:-
     ./domain.sh dbgui off
 	
 	#Setup MariaDB password.  Type line by line
+	GRANT ALL ON *.* TO 'admin'@'localhost' IDENTIFIED BY 'MyNewPassword' WITH GRANT OPTION;
+	FLUSH PRIVILEGES;
+
+	or
+
 	mysql -uroot
 	ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPassword';
 	flush privileges;
