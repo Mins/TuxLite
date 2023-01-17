@@ -26,16 +26,14 @@ The following are installed:-
 For more detailed explanation on the installation, usage and script features, 
 kindly refer to these links:-
 
-[Installation](http://tuxlite.com/installation/)
 
 [Script features](http://tuxlite.com/script-details/)
 
-[Download](http://tuxlite.com/download/)
 
 ### Quick Install (Git)
 
     # Install git and clone TuxLite
-    aptitude install git
+    apt install git
     git clone https://github.com/Almazick/TuxLite
     cd TuxLite
     
@@ -63,7 +61,7 @@ kindly refer to these links:-
 
 ### Requirements
 
--   Supports Debian 6, 7 and 8, Ubuntu 12.04, 12.10, 13.04, 13.10 and 14.04.
+-   Supports Debian 11, Ubuntu 12.04, 12.10, 13.04, 13.10 and 14.04.
 -   A server with at least 80MB RAM. 256MB and above recommended.
 -   Basic Linux knowledge. You will need know how to connect to your
     server remotely.
