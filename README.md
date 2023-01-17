@@ -55,6 +55,15 @@ kindly refer to these links:-
     # Enable/disable public viewing of Adminer/phpMyAdmin
     ./domain.sh dbgui on
     ./domain.sh dbgui off
+	
+	#Setup MariaDB password.  Type line by line
+	mysql -uroot
+	ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPassword';
+	flush privileges;
+	exit;
+	
+	then try to login as 
+	mysql -uroot -pMyNewPassword
 
 ### Requirements
 
