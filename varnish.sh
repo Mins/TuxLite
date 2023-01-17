@@ -15,21 +15,21 @@ function setup_varnish {
 
     # Use official varnish-cache.org repo for Debian stable and Ubuntu LTS.
     # Otherwise, install from distro's repo
- #   if [ $DISTRO = "Debian" ]; then
- #       if [ $RELEASE = "squeeze" ] || [ $RELEASE = "wheezy" ]; then
- #           apt-get update && apt-get -y install curl
- #           curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
- #           echo "deb http://repo.varnish-cache.org/debian/ ${RELEASE} varnish-${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
-#        fi
-#    fi
+    if [ $DISTRO = "Debian" ]; then
+        if [ $RELEASE = "squeeze" ] || [ $RELEASE = "wheezy" ]; then
+            apt-get update && apt-get -y install curl
+            curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
+            echo "deb http://repo.varnish-cache.org/debian/ ${RELEASE} varnish-${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
+        fi
+    fi
 
- #   if [ $DISTRO = "Ubuntu" ]; then
-#        if [ $RELEASE = "lucid" ] || [ $RELEASE = "precise" ]; then
-#            apt-get update && apt-get -y install curl
-#            curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
-#            echo "deb http://repo.varnish-cache.org/ubuntu/ ${RELEASE} varnish-${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
- #       fi
- #   fi
+    if [ $DISTRO = "Ubuntu" ]; then
+        if [ $RELEASE = "lucid" ] || [ $RELEASE = "precise" ]; then
+            apt-get update && apt-get -y install curl
+            curl http://repo.varnish-cache.org/debian/GPG-key.txt | apt-key add -
+            echo "deb http://repo.varnish-cache.org/ubuntu/ ${RELEASE} varnish-${VARNISH_VER}" > /etc/apt/sources.list.d/varnish.list
+        fi
+    fi
 
     apt-get update
     apt-get -y install varnish
