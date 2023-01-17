@@ -296,7 +296,7 @@ function install_mysql {
     elif [ $DBSERVER = 3 ]; then
         apt-get -y install percona-server-server-5.6 percona-server-client-5.6
     else
-        apt-get -y install mysql-server mysql-client
+        apt-get -y install default-mysql-server default-mysql-client
     fi
 
     echo -e "\033[35;1m Securing MySQL... \033[0m"
