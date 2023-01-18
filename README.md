@@ -57,6 +57,7 @@ kindly refer to these links:-
     ./domain.sh dbgui off
 	
 	#Setup MariaDB password.  Type line by line
+	mysql -uroot
 	GRANT ALL ON *.* TO 'admin'@'localhost' IDENTIFIED BY 'MyNewPassword' WITH GRANT OPTION;
 	FLUSH PRIVILEGES;
 
