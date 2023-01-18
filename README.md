@@ -1,4 +1,4 @@
-Modified to work with DEBIAN 11 bullseye and PHP 8.2
+Modified to work with DEBIAN 11 bullseye and PHP 8.1
 
 ### TuxLite Readme
 
