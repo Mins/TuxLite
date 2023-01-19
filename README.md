@@ -57,6 +57,9 @@ kindly refer to these links:-
     ./domain.sh dbgui off
 	
 	#Setup MariaDB password.  Type line by line
+	   #To secure the MariaDB installation, run the next command to improve security of your MySQL server installation.
+           # $ mysql_secure_installation
+				# or
 	mysql -uroot
 	GRANT ALL ON *.* TO 'admin'@'localhost' IDENTIFIED BY 'MyNewPassword' WITH GRANT OPTION;
 	FLUSH PRIVILEGES;
