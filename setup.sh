@@ -265,6 +265,7 @@ function install_php {
     # Install PHP packages and extensions specified in options.conf
     apt-get -y install $PHP_BASE
     apt-get -y install $PHP_EXTRAS
+	apt-get -y install php8.1-mcrypt
 
 } # End function install_php
 
@@ -388,6 +389,8 @@ function optimize_stack {
     sed -i 's/^max_input_time.*/max_input_time = '${PHP_MAX_INPUT_TIME}'/' $php_ini_dir
     sed -i 's/^post_max_size.*/post_max_size = '${PHP_POST_MAX_SIZE}'/' $php_ini_dir
     sed -i 's/^upload_max_filesize.*/upload_max_filesize = '${PHP_UPLOAD_MAX_FILESIZE}'/' $php_ini_dir
+	sed -i 's/^post_max_size.*/post_max_size = '${PHP_UPLOAD_MAX_FILESIZE}'/' $php_ini_dir
+	#sed -i 's/^client_max_body_size.*/client_max_body_size = '${PHP_UPLOAD_MAX_FILESIZE}'/' /etc/nginx/nginx.conf      
     sed -i 's/^expose_php.*/expose_php = Off/' $php_ini_dir
     sed -i 's/^disable_functions.*/disable_functions = exec,system,passthru,shell_exec,escapeshellarg,escapeshellcmd,proc_close,proc_open,dl,popen,show_source/' $php_ini_dir
 
