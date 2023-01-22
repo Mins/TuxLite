@@ -382,6 +382,9 @@ function optimize_stack {
     # Change to socket connection for better performance
     sed -i 's/^listen =.*/listen = \/var\/run\/php-fpm-www-data.sock/' $php_fpm_conf
 
+	# Tweak nginx.conf based on input in options.conf
+	sed -i "s|;*client_max_body_size .*|client_max_body_size  ${NGINX_CLIENT_MAX_BODY_SIZE}|i" /etc/nginx/nginx.conf
+
     php_ini_dir="/etc/php/8.1/fpm/php.ini"
     # Tweak php.ini based on input in options.conf
     sed -i 's/^max_execution_time.*/max_execution_time = '${PHP_MAX_EXECUTION_TIME}'/' $php_ini_dir
@@ -389,8 +392,7 @@ function optimize_stack {
     sed -i 's/^max_input_time.*/max_input_time = '${PHP_MAX_INPUT_TIME}'/' $php_ini_dir
     sed -i 's/^post_max_size.*/post_max_size = '${PHP_POST_MAX_SIZE}'/' $php_ini_dir
     sed -i 's/^upload_max_filesize.*/upload_max_filesize = '${PHP_UPLOAD_MAX_FILESIZE}'/' $php_ini_dir
-	sed -i 's/^post_max_size.*/post_max_size = '${PHP_UPLOAD_MAX_FILESIZE}'/' $php_ini_dir
-	#sed -i 's/^client_max_body_size.*/client_max_body_size = '${PHP_UPLOAD_MAX_FILESIZE}'/' /etc/nginx/nginx.conf      
+	sed -i 's/^post_max_size.*/post_max_size = '${PHP_UPLOAD_MAX_FILESIZE}'/' $php_ini_dir     
     sed -i 's/^expose_php.*/expose_php = Off/' $php_ini_dir
     sed -i 's/^disable_functions.*/disable_functions = exec,system,passthru,shell_exec,escapeshellarg,escapeshellcmd,proc_close,proc_open,dl,popen,show_source/' $php_ini_dir
 
